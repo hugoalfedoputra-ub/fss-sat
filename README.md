@@ -11,7 +11,7 @@ How to run it on your local device:
 2. Then run this command
 
 ```
-opp_makemake -f --deep -I/d/omnetpp-6.1/ta/example/inet/src -L/d/omnetpp-6.1/ta/example/inet/src -lINET
+opp_makemake -f --deep -I/c/omnetpp-6.1/path/to/your/inet/src -L/c/omnetpp-6.1/path/to/your/inet/src -lINET
 ```
 
 3. Then run this command
