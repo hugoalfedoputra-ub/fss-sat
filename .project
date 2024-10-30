@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>sat2</name>
+	<name>fssSat</name>
 	<comment></comment>
 	<projects>
 		<project>inet</project>
