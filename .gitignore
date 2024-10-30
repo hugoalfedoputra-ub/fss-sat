@@ -1,5 +1,2 @@
 Makefile
-.dll
-.dll.a
-.exe
-out/*
+out\*
