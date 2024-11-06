@@ -1,5 +1,6 @@
 ../out/clang-release/src/GEOSatelliteCommunications.o: \
   GEOSatelliteCommunications.cc GEOSatelliteCommunications.h \
+<<<<<<< HEAD
   C:/omnetpp-6.1/include/omnetpp.h SCPCChannel.h \
   C:/omnetpp-6.1/samples/inet/src/inet/common/TagBase.h \
   C:/omnetpp-6.1/samples/inet/src/inet/common/IPrintableObject.h \
@@ -103,3 +104,10 @@ C:/omnetpp-6.1/samples/inet/src/inet/common/packet/chunk/SliceChunk.h:
 C:/omnetpp-6.1/samples/inet/src/inet/common/packet/tag/ITaggedObject.h:
 
 C:/omnetpp-6.1/samples/inet/src/inet/common/packet/tag/SharingTagSet.h:
+=======
+  D:/100-KULIAH/omnetpp-6.1/include/omnetpp.h
+
+GEOSatelliteCommunications.h:
+
+D:/100-KULIAH/omnetpp-6.1/include/omnetpp.h:
+>>>>>>> 27c7de25cceed14f230a05f66d0a606d9854ed10
