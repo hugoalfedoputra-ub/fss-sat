@@ -1,5 +1,4 @@
 ../out/clang-release/src/GEOSatelliteAntenna.o: GEOSatelliteAntenna.cc \
-<<<<<<< HEAD
   GEOSatelliteAntenna.h C:/omnetpp-6.1/include/omnetpp.h \
   C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/Coord.h \
   C:/omnetpp-6.1/samples/inet/src/inet/common/INETMath.h \
@@ -133,10 +132,3 @@ C:/omnetpp-6.1/samples/inet/src/inet/common/packet/chunk/SliceChunk.h:
 C:/omnetpp-6.1/samples/inet/src/inet/common/packet/tag/ITaggedObject.h:
 
 C:/omnetpp-6.1/samples/inet/src/inet/common/packet/tag/SharingTagSet.h:
-=======
-  GEOSatelliteAntenna.h D:/100-KULIAH/omnetpp-6.1/include/omnetpp.h
-
-GEOSatelliteAntenna.h:
-
-D:/100-KULIAH/omnetpp-6.1/include/omnetpp.h:
->>>>>>> 27c7de25cceed14f230a05f66d0a606d9854ed10

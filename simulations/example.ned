@@ -43,12 +43,13 @@ simple GEOSatelliteAntenna
 simple GEOSatelliteCommunications
 {
     parameters:
+        int numOfMCCs;
         double cBandDownlinkFrequency @unit(Hz);  // C-band downlink frequency
         double cBandUplinkFrequency @unit(Hz);    // C-band uplink frequency
         @display("i=block/cogwheel");
     gates:
-        input uplinkIn;  // Single gate for uplink reception
-        output broadcastOut;  // Single gate for broadcast transmission
+        input uplinkIn[numOfMCCs];  // Vector gate for uplink reception
+        output broadcastOut[numOfMCCs];  // Single gate that will be replicated to multiple connections
 }
 
 simple GEOSatelliteMobility extends StationaryMobility
@@ -62,11 +63,12 @@ simple GEOSatelliteMobility extends StationaryMobility
 module GEOSatellite
 {
     parameters:
+        int numOfMCCs;
         @display("i=satellit_blue");
         
     gates:
         input uplinkIn[]; 
-        output broadcastOut;   // Single broadcast output
+        output broadcastOut[];   // Changed to vector gate for multiple connections
         
     submodules:
         antenna: GEOSatelliteAntenna {
@@ -75,6 +77,7 @@ module GEOSatellite
         }
         communications: GEOSatelliteCommunications {
             parameters:
+                numOfMCCs = parent.numOfMCCs;
                 @display("p=200,50");
         }
         mobility: GEOSatelliteMobility {
@@ -83,9 +86,11 @@ module GEOSatellite
         }
     connections:
         for i=0..sizeof(uplinkIn)-1 {
-            uplinkIn[i] --> communications.uplinkIn;
+            uplinkIn[i] --> communications.uplinkIn[i];
         }
-        communications.broadcastOut --> broadcastOut;
+        for i=0..sizeof(broadcastOut)-1 {
+            communications.broadcastOut[i] --> broadcastOut[i];
+        }
 }
 
 module MissionControlCenter
@@ -119,7 +124,7 @@ network GroundStations
     types:
         channel BroadcastChannel extends ned.IdealChannel
         {
-            @class(SatelliteBroadcastChannel);  // Custom channel class
+            @class(SatelliteBroadcastChannel);
         }
 
     submodules:
@@ -130,19 +135,24 @@ network GroundStations
         satellite[numOfSatellites]: GEOSatellite {
             parameters:
                 @display("p=150,50");
-			gates:
-                uplinkIn[2];  // Specify size of the input gate array
+            gates:
+                uplinkIn[numOfMCCs]; 
+                broadcastOut[numOfMCCs];
         }
         
     connections:
-        // Uplink connections - each MCC connects to its own input gate in the satellite
+//         Each MCC gets its own unique uplink gate
         for i=0..numOfMCCs-1 {
             mcc[i].satOut --> SCPCLink --> satellite[0].uplinkIn[i];
         }
-        
-        // Broadcast connection for downlink
+//        mcc[0].satOut --> SCPCLink --> satellite[0].uplinkIn[0];
+//        mcc[1].satOut --> SCPCLink --> satellite[0].uplinkIn[1];
+
+//         Broadcast connections
         for i=0..numOfMCCs-1 {
-            satellite[0].broadcastOut --> BroadcastChannel --> mcc[i].satIn;
+            satellite[0].broadcastOut[i] --> BroadcastChannel --> mcc[i].satIn;
         }
+//        satellite[0].broadcastOut[0] --> BroadcastChannel --> mcc[0].satIn;
+//        satellite[0].broadcastOut[1] --> BroadcastChannel --> mcc[1].satIn;
 
 }
