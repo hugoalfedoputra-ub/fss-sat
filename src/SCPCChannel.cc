@@ -21,6 +21,7 @@ void SCPCChannel::initialize()
     carrierFrequency = par("carrierFrequency").doubleValue();
     bandwidth = par("bandwidth").doubleValue();
     symbolRate = par("symbolRate").doubleValue();
+    datarate = par("datarate").doubleValue();
     modulation = par("modulation").stdstringValue();
 
     // Check for carrier frequency collision
@@ -33,28 +34,22 @@ void SCPCChannel::initialize()
 
     // Emit initial signal
     emit(registerSignal("carrierId"), (long)carrierFrequency);
+
+    EV << "SCPCChannel initialized for " << carrierFrequency << endl;
 }
 
 cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& options, simtime_t t)
 {
     cChannel::Result result;
-    cDatarateChannel::processMessage(msg, options, t); // Correct order of arguments
+    cDatarateChannel::processMessage(msg, options, t);
 
     if (msg->isPacket()) {
         inet::Packet *packet = check_and_cast<inet::Packet *>(msg);
         auto tag = packet->addTagIfAbsent<CarrierTag>();
         tag->setCarrierFrequency(carrierFrequency);
 
-         // Apply BER/PER if configured
-        if (par("ber").doubleValue() > 0) {
-            // Implement bit error simulation
-            double ber = par("ber").doubleValue();
-            if (dblrand() < ber * packet->getBitLength()) {
-                result.discard = true;
-            }
-        }
     }
-    return result; // You MUST return a Result object
+    return result;
 }
 
 void SCPCChannel::finish()

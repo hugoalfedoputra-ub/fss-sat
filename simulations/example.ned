@@ -7,14 +7,15 @@ import inet.networklayer.common.NetworkInterface;
 channel SCPCLink extends ned.DatarateChannel
 {
     parameters:
-        @class(SCPCChannel);  // Custom channel class for SCPC implementation
-        double carrierFrequency @unit(Hz);  // Individual carrier frequency for this link
-        double bandwidth @unit(Hz) = default(36MHz);  // Channel bandwidth
-        double symbolRate @unit(Hz) = default(27MHz);  // Symbol rate
-        string modulation = default("QPSK");  // Modulation scheme
-        double bitErrorRate = default(0);  // Bit error rate
-        double packetErrorRate = default(0);  // Packet error rate
-        @signal[carrierId](type=long);  // Signal for carrier ID tracking
+        @class(SCPCChannel);
+        double carrierFrequency @unit(Hz);
+        double bandwidth @unit(Hz) = default(36MHz);
+        double symbolRate @unit(Hz) = default(27MHz);
+        string modulation = default("QPSK");
+        datarate = default(100Mbps);
+        double bitErrorRate = default(0);
+        double packetErrorRate = default(0);
+        @signal[carrierId](type=long);
         @statistic[activeCarriers](title="Number of active carriers"; source=carrierId; record=vector,stats);
 }
 
@@ -31,32 +32,34 @@ simple LUTMotionMobility extends StationaryMobility
 simple GEOSatelliteAntenna
 {
     parameters:
-        double diameter @unit(m);  // Antenna diameter
-        double beamWidth @unit(deg);  // Beam width
-        double gain @unit(dB);  // Antenna gain
-        string polarization;  // Polarization type
-        double pointingAccuracy @unit(deg);  // Pointing accuracy
-        double power @unit(W);  // Transmission power
+        double diameter @unit(m);
+        double beamWidth @unit(deg);
+        double gain @unit(dB);
+        string polarization;
+        double pointingAccuracy @unit(deg);
+        double power @unit(W);
         @display("i=device/antennatower");
 }
 
 simple GEOSatelliteCommunications
 {
     parameters:
+        // Communication parameters
         int numOfMCCs;
-        double cBandDownlinkFrequency @unit(Hz);  // C-band downlink frequency
-        double cBandUplinkFrequency @unit(Hz);    // C-band uplink frequency
+        double cBandDownlinkFrequency @unit(Hz);
+        double cBandUplinkFrequency @unit(Hz);
+                
         @display("i=block/cogwheel");
     gates:
-        input uplinkIn[numOfMCCs];  // Vector gate for uplink reception
-        output broadcastOut[numOfMCCs];  // Single gate that will be replicated to multiple connections
+        input uplinkIn[numOfMCCs];
+        output broadcastOut[numOfMCCs];
 }
 
 simple GEOSatelliteMobility extends StationaryMobility
 {
     parameters:
-        double longitude;  // Satellite's longitude position
-        double altitude @unit(m) = default(35786000m);  // GEO altitude
+        double longitude;
+        double altitude @unit(m) = default(35786000m);
         @class(GEOSatelliteMobility);
 }
 
@@ -67,8 +70,8 @@ module GEOSatellite
         @display("i=satellit_blue");
         
     gates:
-        input uplinkIn[]; 
-        output broadcastOut[];   // Changed to vector gate for multiple connections
+        input uplinkIn[numOfMCCs]; 
+        output broadcastOut[numOfMCCs];
         
     submodules:
         antenna: GEOSatelliteAntenna {
@@ -85,10 +88,8 @@ module GEOSatellite
                 @display("p=150,100");
         }
     connections:
-        for i=0..sizeof(uplinkIn)-1 {
+        for i=0..numOfMCCs-1 {
             uplinkIn[i] --> communications.uplinkIn[i];
-        }
-        for i=0..sizeof(broadcastOut)-1 {
             communications.broadcastOut[i] --> broadcastOut[i];
         }
 }
@@ -98,9 +99,9 @@ module MissionControlCenter
     parameters:
         string cityName = default("");
         string mobilityType = default("LUTMotionMobility");
+        double iaTime @unit(s);
+        @class(MissionControlCenter);
         @display("t=$cityName");
-        @node;
-
     gates:
         input satIn;
         output satOut;
@@ -119,12 +120,6 @@ network GroundStations
         int numOfSatellites;
         @display("bgi=background_earth;bgb=2160,1080");
 
-    types:
-        channel BroadcastChannel extends ned.IdealChannel
-        {
-            @class(SatelliteBroadcastChannel);
-        }
-
     submodules:
         mcc[numOfMCCs]: MissionControlCenter {
             parameters:
@@ -134,18 +129,11 @@ network GroundStations
             parameters:
                 numOfMCCs = parent.numOfMCCs;
                 @display("p=150,50");
-            gates:
-                uplinkIn[numOfMCCs]; 
-                broadcastOut[numOfMCCs];
         }
         
     connections:
-//         Each MCC gets its own unique uplink gate
-        for i=0..numOfMCCs-1 {
-            mcc[i].satOut --> SCPCLink --> satellite[0].uplinkIn[i];
-        }
-//         Broadcast connections
-        for i=0..numOfMCCs-1 {
-            satellite[0].broadcastOut[i] --> BroadcastChannel { @display("ls=red"); } --> mcc[i].satIn;
+        for i=0..numOfMCCs-1, for j=0..numOfSatellites-1 {
+            mcc[i].satOut --> SCPCLink --> satellite[j].uplinkIn[i];
+            satellite[j].broadcastOut[i] --> mcc[i].satIn;
         }
 }

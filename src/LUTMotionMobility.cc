@@ -14,6 +14,8 @@ void LUTMotionMobility::initialize(int stage)
     latitude = par("latitude");
     longitude = par("longitude");
     setInitialPosition();
+    EV << "LUTMotionMobility stage " << stage << " Initialized" << endl;
+
 }
 
 double LUTMotionMobility::getLUTPositionX() const

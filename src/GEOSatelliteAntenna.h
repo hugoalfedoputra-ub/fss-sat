@@ -3,6 +3,7 @@
 
 #include <omnetpp.h>
 #include <inet/common/geometry/common/Coord.h>
+#include <inet/physicallayer/wireless/common/contract/packetlevel/IRadio.h>
 #include <cmath>
 
 class GEOSatelliteAntenna : public omnetpp::cSimpleModule
@@ -20,12 +21,12 @@ class GEOSatelliteAntenna : public omnetpp::cSimpleModule
     double geoRadius = 42164000.0;   // GEO orbit radius in meters
 
     virtual void initialize() override;
+//    virtual double calculateAzimuthAngle(const inet::Coord& targetPosition);
+    virtual double calculateFreeSpacePathLoss(const inet::Coord& targetPosition, double frequency); // Added frequency
 
   public:
     bool isWithinCoverage(const inet::Coord& targetPosition);
     double calculateElevationAngle(const inet::Coord& targetPosition);
-    double calculateAzimuthAngle(const inet::Coord& targetPosition);
-    double calculateFreeSpacePathLoss(const inet::Coord& targetPosition);
 };
 
 #endif

@@ -18,6 +18,8 @@ void GEOSatelliteMobility::initialize(int stage)
         longitude = par("longitude");
         setInitialPosition();
     }
+    EV << "GEOSatelliteMobility Initialized" << endl;
+
 }
 
 void GEOSatelliteMobility::setInitialPosition()

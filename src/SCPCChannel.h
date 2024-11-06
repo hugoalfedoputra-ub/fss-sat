@@ -26,6 +26,7 @@ protected:
     double carrierFrequency;
     double bandwidth;
     double symbolRate;
+    double datarate;
     std::string modulation;
     static std::set<double> activeCarriers;
 
@@ -36,6 +37,7 @@ protected:
 public:
     SCPCChannel();
     virtual ~SCPCChannel();
+
 };
 
 #endif

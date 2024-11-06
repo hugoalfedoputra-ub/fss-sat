@@ -2,35 +2,27 @@
 #define __GEOSATELLITECOMMUNICATIONS_H__
 
 #include <omnetpp.h>
+#include <inet/physicallayer/wireless/common/contract/packetlevel/IRadio.h>
 #include "SCPCChannel.h"
+#include "GEOSatelliteAntenna.h"
+using namespace omnetpp;
+using namespace inet;
 
-class GEOSatelliteCommunications : public omnetpp::cSimpleModule
+class GEOSatelliteCommunications : public cSimpleModule
 {
   protected:
     // C-band properties
     double cBandDownlinkFrequency; // in Hz
     double cBandUplinkFrequency;   // in Hz
+    GEOSatelliteAntenna *antenna; // Pointer to the antenna module
+    simsignal_t broadcastSignal;
+    physicallayer::IRadio *radio;
+
+
     // ... other C-band parameters (bandwidth, power, etc.)
 
-    // SCPC parameters
-    struct SCPCLink {
-        int linkId;
-        double carrierFrequency;
-        double bandwidth;
-        double symbolRate;
-        std::string modulation;
-        bool active;
-    };
-
-    std::map<int, SCPCLink> scpcLinks;  // Maps linkId to SCPC link parameters
-
     virtual void initialize() override;
-    virtual void handleMessage(omnetpp::cMessage *msg) override;
-
-  public:
-    // Example methods for sending and receiving
-    void sendSignal(omnetpp::cMessage *msg, double frequency);
-    void receiveSignal(omnetpp::cMessage *msg);
+    virtual void handleMessage(cMessage *msg) override;
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "GEOSatelliteAntenna.h"
 #include "GEOSatelliteMobility.h"
 #include "SCPCChannel.h"
+#include <inet/physicallayer/wireless/common/pathloss/FreeSpacePathLoss.h>
 using namespace inet;
 
 Define_Module(GEOSatelliteAntenna);
@@ -13,7 +14,38 @@ void GEOSatelliteAntenna::initialize()
     polarization = par("polarization").stdstringValue();
     pointingAccuracy = par("pointingAccuracy");
     power = par("power");
+
+    EV << "GEOSatelliteAntenna Initialized " << endl;
+
 }
+
+double GEOSatelliteAntenna::calculateFreeSpacePathLoss(const Coord& targetPosition, double frequency) {
+    // Get satellite position from mobility module
+    auto mobilityModule = check_and_cast<GEOSatelliteMobility*>(
+        getParentModule()->getSubmodule("mobility"));
+    Coord satPosition = mobilityModule->getCurrentPosition();
+
+    // Calculate distance between satellite and target
+    double distance = satPosition.distance(targetPosition);
+
+    // Convert frequency to Hz if given in GHz
+    double freq = frequency * 1e9;
+
+    // Speed of light in m/s
+    const double c = 3e8;
+
+    // Calculate wavelength
+    double wavelength = c / freq;
+
+    // Free Space Path Loss formula: FSPL = (4πd/λ)²
+    double fspl = pow((4 * M_PI * distance) / wavelength, 2);
+
+    // Convert to dB
+    double fsplDB = 10 * log10(fspl);
+
+    return fsplDB;
+}
+
 
 bool GEOSatelliteAntenna::isWithinCoverage(const Coord& targetPosition)
 {

@@ -1,8 +1,8 @@
 version 3
-run SCPCConfig-0-20241106-23:59:30-22204
+run SCPCConfig-0-20241107-05:52:48-10024
 attr configname SCPCConfig
-attr datetime 20241106-23:59:30
-attr datetimef 20241106-235930
+attr datetime 20241107-05:52:48
+attr datetimef 20241107-055248
 attr experiment SCPCConfig
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -10,7 +10,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network GroundStations
-attr processid 22204
+attr processid 10024
 attr repetition 0
 attr replication #0
 attr resultdir results
@@ -31,6 +31,17 @@ config **.satOut.datarate 64Mbps
 config **.satOut.delay 250ms
 config **.satOut.bitErrorRate 1e-6
 config network GroundStations
+config **.radioMedium.typename UnitDiskRadioMedium
+config **.satellite[*].radio.typename APSKScalarRadio
+config **.satellite[*].radio.centerFrequency 4GHz
+config **.satellite[*].radio.bandwidth 36MHz
+config **.satellite[*].radio.transmitter.power 100W
+config **.satellite[*].radio.transmitter.headerBitLength 100b
+config **.satellite[*].radio.transmitter.modulation "\"QPSK\""
+config **.mcc[*].radio.typename APSKScalarRadio
+config **.mcc[*].radio.centerFrequency 4GHz
+config **.mcc[*].radio.bandwidth 36MHz
+config **.mcc[*].radio.receiver.modulation "\"QPSK\""
 config **.constraintAreaMinX 0m
 config **.constraintAreaMaxX 2160m
 config **.constraintAreaMinY 0m
@@ -65,4 +76,3 @@ attr source carrierId
 attr title "Number of active carriers"
 0	0	0	-2147483648
 1	0	0	-2147483648
-
