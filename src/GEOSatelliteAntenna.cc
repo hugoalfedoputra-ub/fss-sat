@@ -1,6 +1,7 @@
 #include "GEOSatelliteAntenna.h"
 #include "GEOSatelliteMobility.h"
 #include "SCPCChannel.h"
+using namespace inet;
 
 Define_Module(GEOSatelliteAntenna);
 
@@ -14,12 +15,12 @@ void GEOSatelliteAntenna::initialize()
     power = par("power");
 }
 
-bool GEOSatelliteAntenna::isWithinCoverage(const inet::Coord& targetPosition)
+bool GEOSatelliteAntenna::isWithinCoverage(const Coord& targetPosition)
 {
     // Get satellite position from mobility module
     auto mobilityModule = check_and_cast<GEOSatelliteMobility*>(
         getParentModule()->getSubmodule("mobility"));
-    inet::Coord satPosition = mobilityModule->getCurrentPosition();
+    Coord satPosition = mobilityModule->getCurrentPosition();
 
     // Calculate elevation angle to target
     double elevation = calculateElevationAngle(targetPosition);
@@ -29,7 +30,7 @@ bool GEOSatelliteAntenna::isWithinCoverage(const inet::Coord& targetPosition)
     return elevation >= (90.0 - beamWidth * 0.5);
 }
 
-double GEOSatelliteAntenna::calculateElevationAngle(const inet::Coord& targetPosition)
+double GEOSatelliteAntenna::calculateElevationAngle(const Coord& targetPosition)
 {
     auto mobilityModule = check_and_cast<GEOSatelliteMobility*>(
         getParentModule()->getSubmodule("mobility"));

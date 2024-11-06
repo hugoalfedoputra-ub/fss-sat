@@ -7,13 +7,13 @@ Define_Module(LUTMotionMobility);
 void LUTMotionMobility::initialize(int stage)
 {
     StationaryMobility::initialize(stage);
+
     EV << "initializing LUTMotionMobility stage " << stage << endl;
-    if (stage == 0) {
-        mapx = std::atoi(getParentModule()->getParentModule()->getDisplayString().getTagArg("bgb", 0));
-        mapy = std::atoi(getParentModule()->getParentModule()->getDisplayString().getTagArg("bgb", 1));
-        latitude = par("latitude");
-        longitude = par("longitude");
-    }
+    mapx = std::atoi(getParentModule()->getParentModule()->getDisplayString().getTagArg("bgb", 0));
+    mapy = std::atoi(getParentModule()->getParentModule()->getDisplayString().getTagArg("bgb", 1));
+    latitude = par("latitude");
+    longitude = par("longitude");
+    setInitialPosition();
 }
 
 double LUTMotionMobility::getLUTPositionX() const

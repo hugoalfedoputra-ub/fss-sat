@@ -110,8 +110,6 @@ module MissionControlCenter
             parameters:
                 @display("p=194,103");
         }
-
-    connections allowunconnected:
 }
 
 network GroundStations
@@ -134,6 +132,7 @@ network GroundStations
         }
         satellite[numOfSatellites]: GEOSatellite {
             parameters:
+                numOfMCCs = parent.numOfMCCs;
                 @display("p=150,50");
             gates:
                 uplinkIn[numOfMCCs]; 
@@ -145,14 +144,8 @@ network GroundStations
         for i=0..numOfMCCs-1 {
             mcc[i].satOut --> SCPCLink --> satellite[0].uplinkIn[i];
         }
-//        mcc[0].satOut --> SCPCLink --> satellite[0].uplinkIn[0];
-//        mcc[1].satOut --> SCPCLink --> satellite[0].uplinkIn[1];
-
 //         Broadcast connections
         for i=0..numOfMCCs-1 {
-            satellite[0].broadcastOut[i] --> BroadcastChannel --> mcc[i].satIn;
+            satellite[0].broadcastOut[i] --> BroadcastChannel { @display("ls=red"); } --> mcc[i].satIn;
         }
-//        satellite[0].broadcastOut[0] --> BroadcastChannel --> mcc[0].satIn;
-//        satellite[0].broadcastOut[1] --> BroadcastChannel --> mcc[1].satIn;
-
 }

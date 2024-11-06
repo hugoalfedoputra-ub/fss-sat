@@ -1,0 +1,263 @@
+version 3
+run SimpleExample-0-20241106-21:17:11-14788
+attr configname SimpleExample
+attr datetime 20241106-21:17:11
+attr datetimef 20241106-211711
+attr experiment SimpleExample
+attr inifile omnetpp.ini
+attr iterationvars ""
+attr iterationvarsd ""
+attr iterationvarsf ""
+attr measurement ""
+attr network GroundStations
+attr processid 14788
+attr repetition 0
+attr replication #0
+attr resultdir results
+attr runnumber 0
+attr seedset 0
+config image-path ../images;../../inet/images
+config network GroundStations
+config **.constraintAreaMinX 0m
+config **.constraintAreaMaxX 2160m
+config **.constraintAreaMinY 0m
+config **.constraintAreaMaxY 1080m
+config **.constraintAreaMinZ 0m
+config **.constraintAreaMaxZ 0m
+config **.numOfSatellites 1
+config **.satellite[0].mobility.longitude 108.3337
+config **.satellite[0].antenna.diameter 2.4m
+config **.satellite[0].antenna.beamWidth 1.2deg
+config **.satellite[0].antenna.gain 35dB
+config **.satellite[0].antenna.polarization "\"circular\""
+config **.satellite[0].antenna.pointingAccuracy 0.1deg
+config **.satellite[0].antenna.power 100W
+config **.satellite[0].communications.cBandDownlinkFrequency 4GHz
+config **.satellite[0].communications.cBandUplinkFrequency 6GHz
+config **.numOfMCCs 2
+config **.mcc[0].mobility.latitude -7.9540
+config **.mcc[0].mobility.longitude 112.6145
+config **.mcc[0].cityName "\"FILKOM UB\""
+config **.mcc[1].mobility.latitude 1.1301
+config **.mcc[1].mobility.longitude 104.0529
+config **.mcc[1].cityName "\"KOTA BATAM\""
+
+par GroundStations.mcc[0].satOut.channel typename "\"sat2.simulations.SCPCLink\""
+par GroundStations.mcc[0].satOut.channel disabled false
+attr mutable ""
+par GroundStations.mcc[0].satOut.channel delay 0s
+attr mutable ""
+attr unit s
+par GroundStations.mcc[0].satOut.channel datarate 0bps
+attr mutable ""
+attr unit bps
+par GroundStations.mcc[0].satOut.channel ber 0
+attr mutable ""
+par GroundStations.mcc[0].satOut.channel per 0
+attr mutable ""
+par GroundStations.mcc[0].satOut.channel carrierFrequency 6e+09Hz
+attr unit Hz
+par GroundStations.mcc[0].satOut.channel bandwidth 3.6e+07Hz
+attr unit Hz
+par GroundStations.mcc[0].satOut.channel symbolRate 2.7e+07Hz
+attr unit Hz
+par GroundStations.mcc[0].satOut.channel modulation "\"QPSK\""
+par GroundStations.mcc[0].satOut.channel bitErrorRate 0
+par GroundStations.mcc[0].satOut.channel packetErrorRate 0
+statistic GroundStations.mcc[0].satOut.channel activeCarriers:stats
+field count 1
+field mean -2147483648
+field stddev nan
+field min -2147483648
+field max -2147483648
+field sum -2147483648
+field sqrsum 4.6116860184274e+18
+attr recordingmode stats
+attr source carrierId
+attr title "Number of active carriers"
+par GroundStations.mcc[1].satOut.channel typename "\"sat2.simulations.SCPCLink\""
+par GroundStations.mcc[1].satOut.channel disabled false
+attr mutable ""
+par GroundStations.mcc[1].satOut.channel delay 0s
+attr mutable ""
+attr unit s
+par GroundStations.mcc[1].satOut.channel datarate 0bps
+attr mutable ""
+attr unit bps
+par GroundStations.mcc[1].satOut.channel ber 0
+attr mutable ""
+par GroundStations.mcc[1].satOut.channel per 0
+attr mutable ""
+par GroundStations.mcc[1].satOut.channel carrierFrequency 6.03e+09Hz
+attr unit Hz
+par GroundStations.mcc[1].satOut.channel bandwidth 3.6e+07Hz
+attr unit Hz
+par GroundStations.mcc[1].satOut.channel symbolRate 2.7e+07Hz
+attr unit Hz
+par GroundStations.mcc[1].satOut.channel modulation "\"QPSK\""
+par GroundStations.mcc[1].satOut.channel bitErrorRate 0
+par GroundStations.mcc[1].satOut.channel packetErrorRate 0
+statistic GroundStations.mcc[1].satOut.channel activeCarriers:stats
+field count 1
+field mean -2147483648
+field stddev nan
+field min -2147483648
+field max -2147483648
+field sum -2147483648
+field sqrsum 4.6116860184274e+18
+attr recordingmode stats
+attr source carrierId
+attr title "Number of active carriers"
+par GroundStations.satellite[0].broadcastOut[0].channel typename "\"sat2.simulations.GroundStations.BroadcastChannel\""
+par GroundStations.satellite[0].broadcastOut[1].channel typename "\"sat2.simulations.GroundStations.BroadcastChannel\""
+par GroundStations.mcc[0].mobility typename "\"sat2.simulations.LUTMotionMobility\""
+par GroundStations.mcc[0].mobility subjectModule "\"^\""
+par GroundStations.mcc[0].mobility coordinateSystemModule "\"\""
+par GroundStations.mcc[0].mobility displayStringTextFormat "\"p: %p\\nv: %v\""
+attr mutable ""
+par GroundStations.mcc[0].mobility updateDisplayString true
+par GroundStations.mcc[0].mobility constraintAreaMinX 0m
+attr unit m
+par GroundStations.mcc[0].mobility constraintAreaMinY 0m
+attr unit m
+par GroundStations.mcc[0].mobility constraintAreaMinZ 0m
+attr unit m
+par GroundStations.mcc[0].mobility constraintAreaMaxX 2160m
+attr unit m
+par GroundStations.mcc[0].mobility constraintAreaMaxY 1080m
+attr unit m
+par GroundStations.mcc[0].mobility constraintAreaMaxZ 0m
+attr unit m
+par GroundStations.mcc[0].mobility initialX 1185.44m
+attr unit m
+par GroundStations.mcc[0].mobility initialY 640.272m
+attr unit m
+par GroundStations.mcc[0].mobility initialZ 0m
+attr unit m
+par GroundStations.mcc[0].mobility initialLatitude "nan deg"
+attr unit deg
+par GroundStations.mcc[0].mobility initialLongitude "nan deg"
+attr unit deg
+par GroundStations.mcc[0].mobility initialAltitude 0m
+attr unit m
+par GroundStations.mcc[0].mobility initialHeading 0deg
+attr unit deg
+par GroundStations.mcc[0].mobility initialElevation 0deg
+attr unit deg
+par GroundStations.mcc[0].mobility initialBank 0deg
+attr unit deg
+par GroundStations.mcc[0].mobility initFromDisplayString false
+par GroundStations.mcc[0].mobility updateFromDisplayString false
+par GroundStations.mcc[0].mobility latitude -7.954
+par GroundStations.mcc[0].mobility longitude 112.615
+par GroundStations.mcc[0] typename "\"sat2.simulations.MissionControlCenter\""
+par GroundStations.mcc[0] cityName "\"FILKOM UB\""
+par GroundStations.mcc[0] mobilityType "\"LUTMotionMobility\""
+par GroundStations.mcc[1].mobility typename "\"sat2.simulations.LUTMotionMobility\""
+par GroundStations.mcc[1].mobility subjectModule "\"^\""
+par GroundStations.mcc[1].mobility coordinateSystemModule "\"\""
+par GroundStations.mcc[1].mobility displayStringTextFormat "\"p: %p\\nv: %v\""
+attr mutable ""
+par GroundStations.mcc[1].mobility updateDisplayString true
+par GroundStations.mcc[1].mobility constraintAreaMinX 0m
+attr unit m
+par GroundStations.mcc[1].mobility constraintAreaMinY 0m
+attr unit m
+par GroundStations.mcc[1].mobility constraintAreaMinZ 0m
+attr unit m
+par GroundStations.mcc[1].mobility constraintAreaMaxX 2160m
+attr unit m
+par GroundStations.mcc[1].mobility constraintAreaMaxY 1080m
+attr unit m
+par GroundStations.mcc[1].mobility constraintAreaMaxZ 0m
+attr unit m
+par GroundStations.mcc[1].mobility initialX 1823.61m
+attr unit m
+par GroundStations.mcc[1].mobility initialY 650.984m
+attr unit m
+par GroundStations.mcc[1].mobility initialZ 0m
+attr unit m
+par GroundStations.mcc[1].mobility initialLatitude "nan deg"
+attr unit deg
+par GroundStations.mcc[1].mobility initialLongitude "nan deg"
+attr unit deg
+par GroundStations.mcc[1].mobility initialAltitude 0m
+attr unit m
+par GroundStations.mcc[1].mobility initialHeading 0deg
+attr unit deg
+par GroundStations.mcc[1].mobility initialElevation 0deg
+attr unit deg
+par GroundStations.mcc[1].mobility initialBank 0deg
+attr unit deg
+par GroundStations.mcc[1].mobility initFromDisplayString false
+par GroundStations.mcc[1].mobility updateFromDisplayString false
+par GroundStations.mcc[1].mobility latitude 1.1301
+par GroundStations.mcc[1].mobility longitude 104.053
+par GroundStations.mcc[1] typename "\"sat2.simulations.MissionControlCenter\""
+par GroundStations.mcc[1] cityName "\"KOTA BATAM\""
+par GroundStations.mcc[1] mobilityType "\"LUTMotionMobility\""
+par GroundStations.satellite[0].antenna typename "\"sat2.simulations.GEOSatelliteAntenna\""
+par GroundStations.satellite[0].antenna diameter 2.4m
+attr unit m
+par GroundStations.satellite[0].antenna beamWidth 1.2deg
+attr unit deg
+par GroundStations.satellite[0].antenna gain 35dB
+attr unit dB
+par GroundStations.satellite[0].antenna polarization "\"circular\""
+par GroundStations.satellite[0].antenna pointingAccuracy 0.1deg
+attr unit deg
+par GroundStations.satellite[0].antenna power 100W
+attr unit W
+par GroundStations.satellite[0].communications typename "\"sat2.simulations.GEOSatelliteCommunications\""
+par GroundStations.satellite[0].communications numOfMCCs 2
+par GroundStations.satellite[0].communications cBandDownlinkFrequency 4e+09Hz
+attr unit Hz
+par GroundStations.satellite[0].communications cBandUplinkFrequency 6e+09Hz
+attr unit Hz
+par GroundStations.satellite[0].mobility typename "\"sat2.simulations.GEOSatelliteMobility\""
+par GroundStations.satellite[0].mobility subjectModule "\"^\""
+par GroundStations.satellite[0].mobility coordinateSystemModule "\"\""
+par GroundStations.satellite[0].mobility displayStringTextFormat "\"p: %p\\nv: %v\""
+attr mutable ""
+par GroundStations.satellite[0].mobility updateDisplayString true
+par GroundStations.satellite[0].mobility constraintAreaMinX 0m
+attr unit m
+par GroundStations.satellite[0].mobility constraintAreaMinY 0m
+attr unit m
+par GroundStations.satellite[0].mobility constraintAreaMinZ 0m
+attr unit m
+par GroundStations.satellite[0].mobility constraintAreaMaxX 2160m
+attr unit m
+par GroundStations.satellite[0].mobility constraintAreaMaxY 1080m
+attr unit m
+par GroundStations.satellite[0].mobility constraintAreaMaxZ 0m
+attr unit m
+par GroundStations.satellite[0].mobility initialX 1176.95m
+attr unit m
+par GroundStations.satellite[0].mobility initialY 915.032m
+attr unit m
+par GroundStations.satellite[0].mobility initialZ 0m
+attr unit m
+par GroundStations.satellite[0].mobility initialLatitude "nan deg"
+attr unit deg
+par GroundStations.satellite[0].mobility initialLongitude "nan deg"
+attr unit deg
+par GroundStations.satellite[0].mobility initialAltitude 0m
+attr unit m
+par GroundStations.satellite[0].mobility initialHeading 0deg
+attr unit deg
+par GroundStations.satellite[0].mobility initialElevation 0deg
+attr unit deg
+par GroundStations.satellite[0].mobility initialBank 0deg
+attr unit deg
+par GroundStations.satellite[0].mobility initFromDisplayString true
+par GroundStations.satellite[0].mobility updateFromDisplayString true
+par GroundStations.satellite[0].mobility longitude 108.334
+par GroundStations.satellite[0].mobility altitude 3.5786e+07m
+attr unit m
+par GroundStations.satellite[0] typename "\"sat2.simulations.GEOSatellite\""
+par GroundStations.satellite[0] numOfMCCs 2
+par GroundStations typename "\"sat2.simulations.GroundStations\""
+par GroundStations numOfMCCs 2
+par GroundStations numOfSatellites 1
+

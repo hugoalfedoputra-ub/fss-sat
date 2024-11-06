@@ -1,9 +1,9 @@
-file 1898 1730898289                                            
+file 1898 1730902645                                            
 version 3
-run SimpleExample-0-20241106-20:04:22-19696
+run SimpleExample-0-20241106-21:17:11-14788
 attr configname SimpleExample
-attr datetime 20241106-20:04:22
-attr datetimef 20241106-200422
+attr datetime 20241106-21:17:11
+attr datetimef 20241106-211711
 attr experiment SimpleExample
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -11,7 +11,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network GroundStations
-attr processid 19696
+attr processid 14788
 attr repetition 0
 attr replication #0
 attr resultdir results

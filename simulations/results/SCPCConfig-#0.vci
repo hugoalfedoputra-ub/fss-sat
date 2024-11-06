@@ -1,22 +1,36 @@
+file 2399 1730913405                                            
 version 3
-run SimpleExample-0-20241106-21:17:11-14788
-attr configname SimpleExample
-attr datetime 20241106-21:17:11
-attr datetimef 20241106-211711
-attr experiment SimpleExample
+run SCPCConfig-0-20241106-23:59:30-22204
+attr configname SCPCConfig
+attr datetime 20241106-23:59:30
+attr datetimef 20241106-235930
+attr experiment SCPCConfig
 attr inifile omnetpp.ini
 attr iterationvars ""
 attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network GroundStations
-attr processid 14788
+attr processid 22204
 attr repetition 0
 attr replication #0
 attr resultdir results
 attr runnumber 0
 attr seedset 0
 config image-path ../images;../../inet/images
+config extends SimpleExample
+config **.uplink.baseFrequency 6GHz
+config **.uplink.channelSpacing 30MHz
+config *.mcc[0].satOut.channel.carrierFrequency 6GHz
+config *.mcc[1].satOut.channel.carrierFrequency 6.03GHz
+config **.mcc[0].iaTime exponential(1s)
+config **.mcc[1].iaTime exponential(1.5s)
+config **.satOut.bandwidth 36MHz
+config **.satOut.symbolRate 27MHz
+config **.satOut.modulation "\"QPSK\""
+config **.satOut.datarate 64Mbps
+config **.satOut.delay 250ms
+config **.satOut.bitErrorRate 1e-6
 config network GroundStations
 config **.constraintAreaMinX 0m
 config **.constraintAreaMaxX 2160m
@@ -50,6 +64,6 @@ vector 1 GroundStations.mcc[1].satOut.channel activeCarriers:vector ETV
 attr recordingmode vector
 attr source carrierId
 attr title "Number of active carriers"
-0	0	0	-2147483648
-1	0	0	-2147483648
+0	2359 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+1	2378 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
 
