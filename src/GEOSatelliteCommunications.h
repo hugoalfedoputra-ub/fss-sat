@@ -2,6 +2,7 @@
 #define __GEOSATELLITECOMMUNICATIONS_H__
 
 #include <omnetpp.h>
+#include "SCPCChannel.h"
 
 class GEOSatelliteCommunications : public omnetpp::cSimpleModule
 {

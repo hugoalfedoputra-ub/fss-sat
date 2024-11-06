@@ -1,6 +1,5 @@
-../out/clang-release/src/GEOSatelliteCommunications.o: \
-  GEOSatelliteCommunications.cc GEOSatelliteCommunications.h \
-  C:/omnetpp-6.1/include/omnetpp.h SCPCChannel.h \
+../out/clang-release/src/SCPCChannel.o: SCPCChannel.cc SCPCChannel.h \
+  C:/omnetpp-6.1/include/omnetpp.h \
   C:/omnetpp-6.1/samples/inet/src/inet/common/TagBase.h \
   C:/omnetpp-6.1/samples/inet/src/inet/common/IPrintableObject.h \
   C:/omnetpp-6.1/samples/inet/src/inet/common/INETDefs.h \
@@ -32,13 +31,12 @@
   C:/omnetpp-6.1/samples/inet/src/inet/common/packet/chunk/SequenceChunk.h \
   C:/omnetpp-6.1/samples/inet/src/inet/common/packet/chunk/SliceChunk.h \
   C:/omnetpp-6.1/samples/inet/src/inet/common/packet/tag/ITaggedObject.h \
-  C:/omnetpp-6.1/samples/inet/src/inet/common/packet/tag/SharingTagSet.h
-
-GEOSatelliteCommunications.h:
-
-C:/omnetpp-6.1/include/omnetpp.h:
+  C:/omnetpp-6.1/samples/inet/src/inet/common/packet/tag/SharingTagSet.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/common/ModuleAccess.h
 
 SCPCChannel.h:
+
+C:/omnetpp-6.1/include/omnetpp.h:
 
 C:/omnetpp-6.1/samples/inet/src/inet/common/TagBase.h:
 
@@ -103,3 +101,5 @@ C:/omnetpp-6.1/samples/inet/src/inet/common/packet/chunk/SliceChunk.h:
 C:/omnetpp-6.1/samples/inet/src/inet/common/packet/tag/ITaggedObject.h:
 
 C:/omnetpp-6.1/samples/inet/src/inet/common/packet/tag/SharingTagSet.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/common/ModuleAccess.h:

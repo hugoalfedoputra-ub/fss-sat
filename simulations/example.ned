@@ -2,6 +2,21 @@ package sat2.simulations;
 
 import inet.mobility.static.StationaryMobility;
 import inet.mobility.contract.IMobility;
+import inet.networklayer.common.NetworkInterface;
+
+channel SCPCLink extends ned.DatarateChannel
+{
+    parameters:
+        @class(SCPCChannel);  // Custom channel class for SCPC implementation
+        double carrierFrequency @unit(Hz);  // Individual carrier frequency for this link
+        double bandwidth @unit(Hz) = default(36MHz);  // Channel bandwidth
+        double symbolRate @unit(Hz) = default(27MHz);  // Symbol rate
+        string modulation = default("QPSK");  // Modulation scheme
+        double bitErrorRate = default(0);  // Bit error rate
+        double packetErrorRate = default(0);  // Packet error rate
+        @signal[carrierId](type=long);  // Signal for carrier ID tracking
+        @statistic[activeCarriers](title="Number of active carriers"; source=carrierId; record=vector,stats);
+}
 
 simple LUTMotionMobility extends StationaryMobility
 {
@@ -32,8 +47,8 @@ simple GEOSatelliteCommunications
         double cBandUplinkFrequency @unit(Hz);    // C-band uplink frequency
         @display("i=block/cogwheel");
     gates:
-        input in[];  // Changed to vector gate
-        output out[];  // Changed to vector gate
+        input uplinkIn;  // Single gate for uplink reception
+        output broadcastOut;  // Single gate for broadcast transmission
 }
 
 simple GEOSatelliteMobility extends StationaryMobility
@@ -50,8 +65,8 @@ module GEOSatellite
         @display("i=satellit_blue");
         
     gates:
-        input in[];     // Array of input gates from MCCs
-        output out[];   // Array of output gates to MCCs
+        input uplinkIn[]; 
+        output broadcastOut;   // Single broadcast output
         
     submodules:
         antenna: GEOSatelliteAntenna {
@@ -67,10 +82,10 @@ module GEOSatellite
                 @display("p=150,100");
         }
     connections:
-        for i=0..sizeof(in)-1 {
-            in[i] --> communications.in++;
-            communications.out++ --> out[i];
+        for i=0..sizeof(uplinkIn)-1 {
+            uplinkIn[i] --> communications.uplinkIn;
         }
+        communications.broadcastOut --> broadcastOut;
 }
 
 module MissionControlCenter
@@ -102,11 +117,9 @@ network GroundStations
         @display("bgi=background_earth;bgb=2160,1080");
 
     types:
-        channel SCPCLink extends ned.DatarateChannel
+        channel BroadcastChannel extends ned.IdealChannel
         {
-            parameters:
-                delay = 250ms;
-                datarate = 1Mbps;
+            @class(SatelliteBroadcastChannel);  // Custom channel class
         }
 
     submodules:
@@ -117,11 +130,19 @@ network GroundStations
         satellite[numOfSatellites]: GEOSatellite {
             parameters:
                 @display("p=150,50");
+			gates:
+                uplinkIn[2];  // Specify size of the input gate array
         }
         
     connections:
+        // Uplink connections - each MCC connects to its own input gate in the satellite
         for i=0..numOfMCCs-1 {
-            mcc[i].satOut --> SCPCLink --> satellite[0].in++;
-            satellite[0].out++ --> SCPCLink --> mcc[i].satIn;
+            mcc[i].satOut --> SCPCLink --> satellite[0].uplinkIn[i];
         }
+        
+        // Broadcast connection for downlink
+        for i=0..numOfMCCs-1 {
+            satellite[0].broadcastOut --> BroadcastChannel --> mcc[i].satIn;
+        }
+
 }

@@ -33,7 +33,13 @@ PROJECTRELATIVE_PATH = src
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/GEOSatelliteAntenna.o $O/GEOSatelliteCommunications.o $O/GEOSatelliteMobility.o $O/LUTMotionMobility.o
+OBJS = \
+    $O/GEOSatelliteAntenna.o \
+    $O/GEOSatelliteCommunications.o \
+    $O/GEOSatelliteMobility.o \
+    $O/LUTMotionMobility.o \
+    $O/SatelliteBroadcastChannel.o \
+    $O/SCPCChannel.o
 
 # Message files
 MSGFILES =

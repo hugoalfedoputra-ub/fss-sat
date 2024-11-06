@@ -30,6 +30,9 @@ class GEOSatelliteMobility : public MobilityBase
     virtual const Quaternion& getCurrentAngularVelocity() override { return zeroQuaternion; }
     virtual const Quaternion& getCurrentAngularAcceleration() override { return zeroQuaternion; }
     virtual double getMaxSpeed() const override { return 0; }
+
+    double getLongitude() const { return longitude; }
+    double getAltitude() const { return altitude; }
 };
 
 #endif /* GEOSATELLITEMOBILITY_H_ */

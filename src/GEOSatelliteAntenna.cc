@@ -1,6 +1,6 @@
 #include "GEOSatelliteAntenna.h"
-#include <cmath>  // for trigonometric functions
-
+#include "GEOSatelliteMobility.h"
+#include "SCPCChannel.h"
 
 Define_Module(GEOSatelliteAntenna);
 
@@ -12,19 +12,48 @@ void GEOSatelliteAntenna::initialize()
     polarization = par("polarization").stdstringValue();
     pointingAccuracy = par("pointingAccuracy");
     power = par("power");
-
-    // Perform any calculations based on antenna parameters here, e.g., effective area
 }
 
+bool GEOSatelliteAntenna::isWithinCoverage(const inet::Coord& targetPosition)
+{
+    // Get satellite position from mobility module
+    auto mobilityModule = check_and_cast<GEOSatelliteMobility*>(
+        getParentModule()->getSubmodule("mobility"));
+    inet::Coord satPosition = mobilityModule->getCurrentPosition();
 
+    // Calculate elevation angle to target
+    double elevation = calculateElevationAngle(targetPosition);
 
-// Example method (you'll need to adapt this based on your specific coverage model)
-//bool GEOSatelliteAntenna::isWithinCoverage(const inet::Coord& targetPosition)
-//{
-    // Get the satellite's position (you'll likely need to get this from the mobility module)
-    //  inet::Coord satellitePosition = getParentModule()->getSubmodule("mobility")->getCurrentPosition();
+    // Check if target is within beam width
+    // Factor of 0.5 because beamWidth is full angle, we need half-angle
+    return elevation >= (90.0 - beamWidth * 0.5);
+}
 
-    // ... calculations to determine if targetPosition is within the antenna's beam ...
+double GEOSatelliteAntenna::calculateElevationAngle(const inet::Coord& targetPosition)
+{
+    auto mobilityModule = check_and_cast<GEOSatelliteMobility*>(
+        getParentModule()->getSubmodule("mobility"));
 
-//    return false; // Placeholder - replace with your coverage calculation logic
-//}
+    // Get display dimensions
+    double mapx = getParentModule()->getParentModule()->par("mapx").doubleValue();
+    double mapy = getParentModule()->getParentModule()->par("mapy").doubleValue();
+
+    // Convert display coordinates to spherical coordinates
+    double targetLat = ((-targetPosition.y + mapy/2) * 180.0) / mapy;
+    double targetLon = ((targetPosition.x - mapx/2) * 360.0) / mapx;
+
+    // Convert to radians
+    double targetLatRad = targetLat * M_PI / 180.0;
+    double targetLonRad = targetLon * M_PI / 180.0;
+    double satLonRad = mobilityModule->getLongitude() * M_PI / 180.0;
+
+    // Calculate central angle between satellite and target
+    double centralAngle = acos(cos(targetLatRad) * cos(targetLonRad - satLonRad));
+
+    // Calculate elevation angle using satellite altitude
+    double satAlt = mobilityModule->getAltitude();
+    double elevation = atan2(cos(centralAngle) - earthRadius/(earthRadius + satAlt),
+                           sin(centralAngle)) * 180.0 / M_PI;
+
+    return elevation;
+}

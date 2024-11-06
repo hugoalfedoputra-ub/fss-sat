@@ -2,26 +2,32 @@
 #define __GEOSATELLITEANTENNA_H__
 
 #include <omnetpp.h>
+#include <inet/common/geometry/common/Coord.h>
+#include <cmath>
 
 class GEOSatelliteAntenna : public omnetpp::cSimpleModule
 {
   protected:
-    // Antenna parameters
     double diameter;            // in meters
     double beamWidth;          // in degrees
     double gain;               // in dBi
     std::string polarization;  // e.g., "linear", "circular"
-    double pointingAccuracy;    // in degrees
+    double pointingAccuracy;   // in degrees
     double power;              // in Watts
 
+    // Coverage calculations
+    double earthRadius = 6378137.0;  // WGS84 semi-major axis in meters
+    double geoRadius = 42164000.0;   // GEO orbit radius in meters
 
     virtual void initialize() override;
 
   public:
-    // Methods to calculate coverage footprint, etc.
-    // Example:
-//    bool isWithinCoverage(const inet::Coord& targetPosition);
-
+    bool isWithinCoverage(const inet::Coord& targetPosition);
+    double calculateElevationAngle(const inet::Coord& targetPosition);
+    double calculateAzimuthAngle(const inet::Coord& targetPosition);
+    double calculateFreeSpacePathLoss(const inet::Coord& targetPosition);
 };
 
-#endif /* GEOSATELLITEANTENNA_H_ */
+#endif
+
+ /* GEOSATELLITEANTENNA_H_ */
