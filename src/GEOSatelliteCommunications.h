@@ -5,6 +5,8 @@
 #include <inet/physicallayer/wireless/common/contract/packetlevel/IRadio.h>
 #include "SCPCChannel.h"
 #include "GEOSatelliteAntenna.h"
+#include <queue>
+
 using namespace omnetpp;
 using namespace inet;
 
@@ -17,13 +19,14 @@ class GEOSatelliteCommunications : public cSimpleModule
     GEOSatelliteAntenna *antenna; // Pointer to the antenna module
     simsignal_t broadcastSignal;
     physicallayer::IRadio *radio;
-
+    std::queue<Packet*> packetQueue; // Queue for storing packets
+    cMessage *queueProcessingEvent;
 
     // ... other C-band parameters (bandwidth, power, etc.)
 
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
+    void processQueue();
 };
 
 #endif
- /* GEOSATELLITECOMMUNICATIONS_H_ */

@@ -36,6 +36,10 @@ void MissionControlCenter::handleMessage(cMessage *msg)
 
 
         EV << "MCC " << getIndex() << " sending packet to MCC " << targetMCC << endl;
+
+//        simtime_t randomDelay = uniform(1.0, 2.0); // Example: up to 1ms delay
+//        scheduleAt(simTime() + randomDelay, packet); // Schedule the packet with a small delay
+
         send(packet, "satOut");
 
         scheduleAt(simTime() + iaTime, new cMessage("sendMsg"));

@@ -20,62 +20,76 @@ void GEOSatelliteCommunications::initialize()
     broadcastSignal = registerSignal("broadcastPackets");
 
     // ... initialize other parameters
-    EV << "GEOSatelliteCommunications Initialized " << endl;
+    queueProcessingEvent = new cMessage("processQueue");
 
+    EV << "GEOSatelliteCommunications Initialized " << endl;
 }
 
 void GEOSatelliteCommunications::handleMessage(cMessage *msg)
 {
     // Check if the message is null
-        if (!msg) {
-            EV_ERROR << "Received null message" << endl;
-            return;
+    if (!msg) {
+        EV_ERROR << "Received null message" << endl;
+        return;
+    }
+
+    if (msg->isSelfMessage() && msg == queueProcessingEvent) {
+        processQueue();
+        return; // Important: Exit after processing the queue
+    }
+
+    if (msg->isPacket()) {
+        Packet* packet = check_and_cast<Packet*>(msg);
+
+        // Log received packet details
+        EV << "Satellite received packet: " << packet->getName()
+           << " from gate: " << msg->getArrivalGate()->getFullName()
+           << " size: " << packet->getByteLength() << " bytes" << endl;
+
+         packetQueue.push(packet);  // Add packet to the queue
+        if (!queueProcessingEvent->isScheduled()){
+            scheduleAt(simTime(), queueProcessingEvent);
         }
+    } else {
+        EV_WARN << "Received non-packet message, discarding" << endl;
+        delete msg;
+    }
+}
 
+void GEOSatelliteCommunications::processQueue()
+{
+    if (packetQueue.empty()) {
+           return;
+       }
 
-        if (msg->isSelfMessage()) {
-            // Handle self messages (if any)
-            EV << "Handling self message: " << msg->getName() << endl;
-            delete msg;
-            return;
-        }
+    Packet* packet = packetQueue.front();
+    packetQueue.pop();
 
-        if (msg->isPacket()) {
-            Packet* packet = check_and_cast<Packet*>(msg);
+    try {
+        emit(broadcastSignal, packet->getByteLength());
 
-            // Log received packet details
-            EV << "Satellite received packet: " << packet->getName()
-               << " from gate: " << msg->getArrivalGate()->getFullName()
-               << " size: " << packet->getByteLength() << " bytes" << endl;
+       // 1. Retrieve the target MCC from the packet tag
+       int targetMCC = packet->getTag<TargetTag>()->getTarget();
+       EV << "Target MCC: " << targetMCC << endl;
 
-            try {
-                emit(broadcastSignal, packet->getByteLength());
+       // 2. Find the output gate corresponding to the target MCC
+       cGate *outGate = gate("downlinkOut", targetMCC);
 
-               // 1. Retrieve the target MCC from the packet tag
-               int targetMCC = packet->getTag<TargetTag>()->getTarget();
-               EV << "Target MCC: " << targetMCC << endl;
+       // 3. Forward the packet to the identified output gate
+       if (outGate) {
+           EV << "Forwarding packet to gate: " << outGate->getName() << " for MCC " << targetMCC << endl; // Corrected line
+           send(packet, outGate);
+       } else {
+           EV_WARN << "No output gate found for target MCC " << targetMCC << ", dropping packet" << endl;
+           delete packet;
+       }
 
-               // 2. Find the output gate corresponding to the target MCC
-               cGate *outGate = gate("downlinkOut", targetMCC);
+    } catch (const std::exception& e) {
+        EV_ERROR << "Error processing packet: " << e.what() << endl;
+        delete packet; // Delete the message in case of error
+    }
 
-
-               // 3. Forward the packet to the identified output gate
-               if (outGate) {
-                   EV << "Forwarding packet to gate: " << outGate->getName() << " for MCC " << targetMCC << endl; // Corrected line
-                   send(packet, outGate);
-               } else {
-                   EV_WARN << "No output gate found for target MCC " << targetMCC << ", dropping packet" << endl; // Corrected line
-                   delete packet;
-               }
-
-            } catch (const std::exception& e) {
-                EV_ERROR << "Error processing packet: " << e.what() << endl;
-                delete msg; // Delete the message in case of error
-            }
-
-
-        } else {
-            EV_WARN << "Received non-packet message, discarding" << endl;
-            delete msg;
-        }
+    if (!packetQueue.empty()) {
+         scheduleAt(simTime() + 0.00001, queueProcessingEvent); // Schedule for next packet
+     }
 }

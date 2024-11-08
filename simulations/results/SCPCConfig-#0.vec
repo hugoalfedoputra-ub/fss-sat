@@ -1,8 +1,8 @@
 version 3
-run SCPCConfig-0-20241108-19:12:05-3084
+run SCPCConfig-0-20241108-20:56:42-17776
 attr configname SCPCConfig
-attr datetime 20241108-19:12:05
-attr datetimef 20241108-191205
+attr datetime 20241108-20:56:42
+attr datetimef 20241108-205642
 attr experiment SCPCConfig
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -10,7 +10,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network GroundStations
-attr processid 3084
+attr processid 17776
 attr repetition 0
 attr replication #0
 attr resultdir results
@@ -30,15 +30,11 @@ config *.satellite[0].downlinkOut[1].channel.carrierFrequency 4.03GHz
 config *.satellite[0].downlinkOut[2].channel.carrierFrequency 4.06GHz
 config *.satellite[0].downlinkOut[3].channel.carrierFrequency 4.09GHz
 config *.satellite[0].downlinkOut[4].channel.carrierFrequency 4.12GHz
-config **.mcc[0].iaTime exponential(0.1s)
-config **.mcc[1].iaTime exponential(0.5s)
-config **.mcc[2].iaTime exponential(0.25s)
-config **.mcc[3].iaTime exponential(0.15s)
-config **.mcc[4].iaTime exponential(0.05s)
+config **.mcc[*].iaTime 0.1s
 config **.satOut.bandwidth 36MHz
 config **.satOut.symbolRate 27MHz
 config **.satOut.modulation "\"QPSK\""
-config **.satOut.datarate 64Mbps
+config **.satOut.datarate 100bps
 config **.satOut.delay 250ms
 config **.satOut.bitErrorRate 1e-6
 config network GroundStations
@@ -85,6 +81,7 @@ config **.mcc[3].cityName "\"UJUNG KULON\""
 config **.mcc[4].mobility.latitude 5.398369940275913
 config **.mcc[4].mobility.longitude 100.59269163778337
 config **.mcc[4].cityName "\"INFINEON KULIM\""
+config simtime-resolution ps
 
 vector 0 GroundStations.mcc[0].satOut.channel activeCarriers:vector ETV
 attr recordingmode vector

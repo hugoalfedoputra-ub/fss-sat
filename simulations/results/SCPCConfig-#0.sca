@@ -1,8 +1,8 @@
 version 3
-run SCPCConfig-0-20241108-19:12:05-3084
+run SCPCConfig-0-20241108-20:56:42-17776
 attr configname SCPCConfig
-attr datetime 20241108-19:12:05
-attr datetimef 20241108-191205
+attr datetime 20241108-20:56:42
+attr datetimef 20241108-205642
 attr experiment SCPCConfig
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -10,7 +10,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network GroundStations
-attr processid 3084
+attr processid 17776
 attr repetition 0
 attr replication #0
 attr resultdir results
@@ -30,15 +30,11 @@ config *.satellite[0].downlinkOut[1].channel.carrierFrequency 4.03GHz
 config *.satellite[0].downlinkOut[2].channel.carrierFrequency 4.06GHz
 config *.satellite[0].downlinkOut[3].channel.carrierFrequency 4.09GHz
 config *.satellite[0].downlinkOut[4].channel.carrierFrequency 4.12GHz
-config **.mcc[0].iaTime exponential(0.1s)
-config **.mcc[1].iaTime exponential(0.5s)
-config **.mcc[2].iaTime exponential(0.25s)
-config **.mcc[3].iaTime exponential(0.15s)
-config **.mcc[4].iaTime exponential(0.05s)
+config **.mcc[*].iaTime 0.1s
 config **.satOut.bandwidth 36MHz
 config **.satOut.symbolRate 27MHz
 config **.satOut.modulation "\"QPSK\""
-config **.satOut.datarate 64Mbps
+config **.satOut.datarate 100bps
 config **.satOut.delay 250ms
 config **.satOut.bitErrorRate 1e-6
 config network GroundStations
@@ -85,6 +81,7 @@ config **.mcc[3].cityName "\"UJUNG KULON\""
 config **.mcc[4].mobility.latitude 5.398369940275913
 config **.mcc[4].mobility.longitude 100.59269163778337
 config **.mcc[4].cityName "\"INFINEON KULIM\""
+config simtime-resolution ps
 
 par GroundStations.mcc[0].satOut.channel typename "\"sat2.simulations.SCPCLink\""
 par GroundStations.mcc[0].satOut.channel disabled false
@@ -434,9 +431,9 @@ par GroundStations.mcc[0].mobility constraintAreaMaxY 1080m
 attr unit m
 par GroundStations.mcc[0].mobility constraintAreaMaxZ 0m
 attr unit m
-par GroundStations.mcc[0].mobility initialX 1853.16m
+par GroundStations.mcc[0].mobility initialX 1185.44m
 attr unit m
-par GroundStations.mcc[0].mobility initialY 588.474m
+par GroundStations.mcc[0].mobility initialY 640.272m
 attr unit m
 par GroundStations.mcc[0].mobility initialZ 0m
 attr unit m
@@ -459,7 +456,7 @@ par GroundStations.mcc[0].mobility longitude 112.615
 par GroundStations.mcc[0] typename "\"sat2.simulations.MissionControlCenter\""
 par GroundStations.mcc[0] cityName "\"FILKOM UB\""
 par GroundStations.mcc[0] mobilityType "\"LUTMotionMobility\""
-par GroundStations.mcc[0] iaTime 0.0795875s
+par GroundStations.mcc[0] iaTime 0.1s
 attr unit s
 par GroundStations.mcc[1].mobility typename "\"sat2.simulations.LUTMotionMobility\""
 par GroundStations.mcc[1].mobility subjectModule "\"^\""
@@ -479,9 +476,9 @@ par GroundStations.mcc[1].mobility constraintAreaMaxY 1080m
 attr unit m
 par GroundStations.mcc[1].mobility constraintAreaMaxZ 0m
 attr unit m
-par GroundStations.mcc[1].mobility initialX 915.094m
+par GroundStations.mcc[1].mobility initialX 1823.61m
 attr unit m
-par GroundStations.mcc[1].mobility initialY 673.449m
+par GroundStations.mcc[1].mobility initialY 650.984m
 attr unit m
 par GroundStations.mcc[1].mobility initialZ 0m
 attr unit m
@@ -504,7 +501,7 @@ par GroundStations.mcc[1].mobility longitude 104.053
 par GroundStations.mcc[1] typename "\"sat2.simulations.MissionControlCenter\""
 par GroundStations.mcc[1] cityName "\"KOTA BATAM\""
 par GroundStations.mcc[1] mobilityType "\"LUTMotionMobility\""
-par GroundStations.mcc[1] iaTime 0.44928s
+par GroundStations.mcc[1] iaTime 0.1s
 attr unit s
 par GroundStations.mcc[2].mobility typename "\"sat2.simulations.LUTMotionMobility\""
 par GroundStations.mcc[2].mobility subjectModule "\"^\""
@@ -524,9 +521,9 @@ par GroundStations.mcc[2].mobility constraintAreaMaxY 1080m
 attr unit m
 par GroundStations.mcc[2].mobility constraintAreaMaxZ 0m
 attr unit m
-par GroundStations.mcc[2].mobility initialX 830.264m
+par GroundStations.mcc[2].mobility initialX 1176.95m
 attr unit m
-par GroundStations.mcc[2].mobility initialY 472.594m
+par GroundStations.mcc[2].mobility initialY 915.032m
 attr unit m
 par GroundStations.mcc[2].mobility initialZ 0m
 attr unit m
@@ -549,7 +546,7 @@ par GroundStations.mcc[2].mobility longitude 136.902
 par GroundStations.mcc[2] typename "\"sat2.simulations.MissionControlCenter\""
 par GroundStations.mcc[2] cityName "\"KOTA TIMIKA\""
 par GroundStations.mcc[2] mobilityType "\"LUTMotionMobility\""
-par GroundStations.mcc[2] iaTime 0.313983s
+par GroundStations.mcc[2] iaTime 0.1s
 attr unit s
 par GroundStations.mcc[3].mobility typename "\"sat2.simulations.LUTMotionMobility\""
 par GroundStations.mcc[3].mobility subjectModule "\"^\""
@@ -569,9 +566,9 @@ par GroundStations.mcc[3].mobility constraintAreaMaxY 1080m
 attr unit m
 par GroundStations.mcc[3].mobility constraintAreaMaxZ 0m
 attr unit m
-par GroundStations.mcc[3].mobility initialX 1926.23m
+par GroundStations.mcc[3].mobility initialX 1346.9m
 attr unit m
-par GroundStations.mcc[3].mobility initialY 61.25m
+par GroundStations.mcc[3].mobility initialY 697.566m
 attr unit m
 par GroundStations.mcc[3].mobility initialZ 0m
 attr unit m
@@ -594,7 +591,7 @@ par GroundStations.mcc[3].mobility longitude 105.493
 par GroundStations.mcc[3] typename "\"sat2.simulations.MissionControlCenter\""
 par GroundStations.mcc[3] cityName "\"UJUNG KULON\""
 par GroundStations.mcc[3] mobilityType "\"LUTMotionMobility\""
-par GroundStations.mcc[3] iaTime 0.278941s
+par GroundStations.mcc[3] iaTime 0.1s
 attr unit s
 par GroundStations.mcc[4].mobility typename "\"sat2.simulations.LUTMotionMobility\""
 par GroundStations.mcc[4].mobility subjectModule "\"^\""
@@ -614,9 +611,9 @@ par GroundStations.mcc[4].mobility constraintAreaMaxY 1080m
 attr unit m
 par GroundStations.mcc[4].mobility constraintAreaMaxZ 0m
 attr unit m
-par GroundStations.mcc[4].mobility initialX 588.938m
+par GroundStations.mcc[4].mobility initialX 945.188m
 attr unit m
-par GroundStations.mcc[4].mobility initialY 414.117m
+par GroundStations.mcc[4].mobility initialY 321.337m
 attr unit m
 par GroundStations.mcc[4].mobility initialZ 0m
 attr unit m
@@ -639,7 +636,7 @@ par GroundStations.mcc[4].mobility longitude 100.593
 par GroundStations.mcc[4] typename "\"sat2.simulations.MissionControlCenter\""
 par GroundStations.mcc[4] cityName "\"INFINEON KULIM\""
 par GroundStations.mcc[4] mobilityType "\"LUTMotionMobility\""
-par GroundStations.mcc[4] iaTime 0.0461612s
+par GroundStations.mcc[4] iaTime 0.1s
 attr unit s
 par GroundStations.satellite[0].antenna typename "\"sat2.simulations.GEOSatelliteAntenna\""
 par GroundStations.satellite[0].antenna diameter 2.4m
@@ -677,9 +674,9 @@ par GroundStations.satellite[0].mobility constraintAreaMaxY 1080m
 attr unit m
 par GroundStations.satellite[0].mobility constraintAreaMaxZ 0m
 attr unit m
-par GroundStations.satellite[0].mobility initialX 1710.13m
+par GroundStations.satellite[0].mobility initialX 122.5m
 attr unit m
-par GroundStations.satellite[0].mobility initialY 877.142m
+par GroundStations.satellite[0].mobility initialY 1040.76m
 attr unit m
 par GroundStations.satellite[0].mobility initialZ 0m
 attr unit m
