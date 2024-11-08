@@ -15,6 +15,7 @@ private:
 public:
     CarrierTag() : carrierFrequency(0) {}
     virtual void setCarrierFrequency(double freq) { carrierFrequency = freq; }
+    virtual CarrierTag *dup() const override { return new CarrierTag(*this); }
     virtual double getCarrierFrequency() const { return carrierFrequency; }
     virtual const char* getName() const override { return "CarrierTag"; }
     virtual std::string str() const override { return ""; }
@@ -37,7 +38,7 @@ protected:
 public:
     SCPCChannel();
     virtual ~SCPCChannel();
-
+    double getCarrierFrequency() const { return carrierFrequency; }
 };
 
 #endif

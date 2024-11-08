@@ -52,7 +52,7 @@ simple GEOSatelliteCommunications
         @display("i=block/cogwheel");
     gates:
         input uplinkIn[numOfMCCs];
-        output broadcastOut[numOfMCCs];
+        output downlinkOut[numOfMCCs];
 }
 
 simple GEOSatelliteMobility extends StationaryMobility
@@ -71,7 +71,7 @@ module GEOSatellite
         
     gates:
         input uplinkIn[numOfMCCs]; 
-        output broadcastOut[numOfMCCs];
+        output downlinkOut[numOfMCCs];
         
     submodules:
         antenna: GEOSatelliteAntenna {
@@ -90,7 +90,7 @@ module GEOSatellite
     connections:
         for i=0..numOfMCCs-1 {
             uplinkIn[i] --> communications.uplinkIn[i];
-            communications.broadcastOut[i] --> broadcastOut[i];
+            communications.downlinkOut[i] --> downlinkOut[i];
         }
 }
 
@@ -134,6 +134,6 @@ network GroundStations
     connections:
         for i=0..numOfMCCs-1, for j=0..numOfSatellites-1 {
             mcc[i].satOut --> SCPCLink --> satellite[j].uplinkIn[i];
-            satellite[j].broadcastOut[i] --> mcc[i].satIn;
+            satellite[j].downlinkOut[i] --> SCPCLink --> mcc[i].satIn;
         }
 }
