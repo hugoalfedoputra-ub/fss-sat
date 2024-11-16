@@ -1,7 +1,6 @@
 Makefile
 src/Makefile.*
 **/*.exe
-out
+out/
 repopack-output.txt
 simulations/results
-out
