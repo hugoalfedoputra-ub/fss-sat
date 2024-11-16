@@ -5,21 +5,10 @@
 #include <inet/common/TagBase.h>
 #include <inet/common/packet/Packet.h>
 #include <set>
+#include "GEOSatelliteAntenna.h"
+#include "Tags.h"
 
 using namespace omnetpp;
-
-class CarrierTag : public inet::TagBase
-{
-private:
-    double carrierFrequency;
-public:
-    CarrierTag() : carrierFrequency(0) {}
-    virtual void setCarrierFrequency(double freq) { carrierFrequency = freq; }
-    virtual CarrierTag *dup() const override { return new CarrierTag(*this); }
-    virtual double getCarrierFrequency() const { return carrierFrequency; }
-    virtual const char* getName() const override { return "CarrierTag"; }
-    virtual std::string str() const override { return ""; }
-};
 
 class SCPCChannel : public cDatarateChannel
 {
@@ -30,6 +19,7 @@ protected:
     double datarate;
     std::string modulation;
     static std::set<double> activeCarriers;
+    GEOSatelliteAntenna antenna;
 
     virtual void initialize() override;
     virtual cChannel::Result processMessage(cMessage *msg, const SendOptions& options, simtime_t t) override;

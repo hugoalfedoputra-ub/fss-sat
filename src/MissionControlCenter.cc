@@ -1,10 +1,14 @@
 #include "MissionControlCenter.h"
+#include "LUTMotionMobility.h"
 #include <inet/common/packet/Packet.h>
 #include <inet/common/packet/chunk/ByteCountChunk.h>
 #include <inet/common/Units.h>
+#include <inet/common/INETMath.h>
+#include "Tags.h"
 #include <random>
 
 using namespace inet;
+using namespace inet::math;
 Define_Module(MissionControlCenter);
 
 void MissionControlCenter::initialize()
@@ -34,6 +38,17 @@ void MissionControlCenter::handleMessage(cMessage *msg)
         auto targetTag = packet->addTagIfAbsent<TargetTag>();
         targetTag->setTarget(targetMCC);
 
+        auto mobility = getSubmodule("mobility");
+        if (mobility) {
+            auto lutMobility = dynamic_cast<LUTMotionMobility*>(mobility);
+            if (lutMobility) {
+                targetTag->setPosition(lutMobility->getRealWorldPosition());
+            } else {
+                EV_ERROR << "Mobility submodule is not of type LUTMotionMobility" << endl;
+            }
+        } else {
+            EV_ERROR << "Mobility submodule not found" << endl;
+        }
 
         EV << "MCC " << getIndex() << " sending packet to MCC " << targetMCC << endl;
 
@@ -54,7 +69,6 @@ void MissionControlCenter::handleMessage(cMessage *msg)
         }
     }
 }
-
 void MissionControlCenter::finish()
 {
     EV << "MCC " << getIndex() << " finished." << endl;

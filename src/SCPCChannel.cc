@@ -1,10 +1,14 @@
 #include "SCPCChannel.h"
+#include "GEOSatelliteMobility.h"
+
 #include <inet/common/ModuleAccess.h>
 #include <inet/common/packet/Packet.h>
+#include <inet/common/geometry/common/Coord.h>
 
 Define_Channel(SCPCChannel);
 std::set<double> SCPCChannel::activeCarriers;
 
+using namespace inet;
 
 SCPCChannel::SCPCChannel() {}  // No implementation here
 
@@ -24,6 +28,18 @@ void SCPCChannel::initialize()
     datarate = par("datarate").doubleValue();
     modulation = par("modulation").stdstringValue();
 
+    antenna.setDiameter(2.4);        // Example: 2.4 meters
+    antenna.setBeamWidth(1.2);      // Example: 1.2 degrees
+    antenna.setGain(35.0);          // Example: 35 dB
+    antenna.setPolarization("circular");  // Example
+    antenna.setPointingAccuracy(0.1); // Example: 0.1 degrees
+    antenna.setPower(100.0);        // Example: 100 Watts
+
+    EV << "SCPCChannel initialized for " << carrierFrequency
+       << ", antenna diameter: " << antenna.getDiameter()
+       << ", antenna gain: " << antenna.getGain() << " dB" << endl;
+
+
     // Check for carrier frequency collision
     if (activeCarriers.find(carrierFrequency) != activeCarriers.end()) {
         throw cRuntimeError("Carrier frequency %f Hz is already in use", carrierFrequency);
@@ -41,14 +57,47 @@ void SCPCChannel::initialize()
 cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& options, simtime_t t)
 {
     cChannel::Result result;
-    cDatarateChannel::processMessage(msg, options, t);
 
     if (msg->isPacket()) {
-        inet::Packet *packet = check_and_cast<inet::Packet *>(msg);
+        auto packet = check_and_cast<Packet *>(msg);
+
+        if (!packet->hasTag<TargetTag>()) {  // Check if tag is missing
+            throw cRuntimeError("Packet missing TargetPositionTag! Cannot calculate path loss.");
+        }
+
+        if (packet->hasTag<TargetTag>()) {
+            const Coord& targetPosition = packet->getTag<TargetTag>()->getPosition();
+
+            EV << targetPosition << endl;
+
+            auto mobilityModule = dynamic_cast<GEOSatelliteMobility*>(getSimulation()->getModuleByPath("GroundStations.satellite[0].mobility"));
+            if (!mobilityModule) {
+                 throw cRuntimeError("Could not find GEOSatelliteMobility module.");
+            }
+            Coord satPosition = mobilityModule->getRealWorldPosition();
+
+            EV << "Sat Pos : " << satPosition << endl;
+
+
+//            double pathloss_dB = antenna.calculateFreeSpacePathLoss(targetPosition, carrierFrequency);
+//            EV << pathloss_dB << endl;
+
+//            EV << "Path loss to target: " << pathloss_dB << " dB\n";
+//
+//            auto powerTag = packet->addTagIfAbsent<PowerTag>();
+//            double power_dBm = powerTag->getPower_dBm(); // Get initial power (if any)
+//            power_dBm -= pathloss_dB;                     // Apply path loss
+//            powerTag->setPower_dBm(power_dBm);            // Update power tag
+
+        } else {
+            EV_WARN << "Packet does not have TargetPositionTag, cannot calculate path loss!\n";
+        }
+
         auto tag = packet->addTagIfAbsent<CarrierTag>();
         tag->setCarrierFrequency(carrierFrequency);
-
     }
+
+    cDatarateChannel::processMessage(msg, options, t);
     return result;
 }
 

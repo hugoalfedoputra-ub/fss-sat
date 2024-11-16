@@ -2,7 +2,6 @@
 #define __GEOSATELLITECOMMUNICATIONS_H__
 
 #include <omnetpp.h>
-#include <inet/physicallayer/wireless/common/contract/packetlevel/IRadio.h>
 #include "SCPCChannel.h"
 #include "GEOSatelliteAntenna.h"
 #include <queue>
@@ -18,7 +17,6 @@ class GEOSatelliteCommunications : public cSimpleModule
     double cBandUplinkFrequency;   // in Hz
     GEOSatelliteAntenna *antenna; // Pointer to the antenna module
     simsignal_t broadcastSignal;
-    physicallayer::IRadio *radio;
     std::queue<Packet*> packetQueue; // Queue for storing packets
     cMessage *queueProcessingEvent;
 

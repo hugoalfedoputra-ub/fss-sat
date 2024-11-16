@@ -14,6 +14,7 @@ class GEOSatelliteMobility : public MobilityBase
     double altitude = 35786000; // GEO altitude in meters
     double mapx, mapy;          // Display dimensions
     Coord initialPosition;
+    Coord realWorldPosition;
     Quaternion zeroQuaternion;
 
     virtual void initialize(int stage) override;
@@ -33,6 +34,6 @@ class GEOSatelliteMobility : public MobilityBase
 
     double getLongitude() const { return longitude; }
     double getAltitude() const { return altitude; }
-};
+    const Coord& getRealWorldPosition() const { return realWorldPosition; }};
 
 #endif /* GEOSATELLITEMOBILITY_H_ */

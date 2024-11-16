@@ -1,9 +1,9 @@
-file 5518 1731074361                                            
+file 4943 1731793110                                            
 version 3
-run SCPCConfig-0-20241108-20:56:42-17776
+run SCPCConfig-0-20241117-04:37:53-3976
 attr configname SCPCConfig
-attr datetime 20241108-20:56:42
-attr datetimef 20241108-205642
+attr datetime 20241117-04:37:53
+attr datetimef 20241117-043753
 attr experiment SCPCConfig
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -11,7 +11,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network GroundStations
-attr processid 17776
+attr processid 3976
 attr repetition 0
 attr replication #0
 attr resultdir results
@@ -35,21 +35,10 @@ config **.mcc[*].iaTime 0.1s
 config **.satOut.bandwidth 36MHz
 config **.satOut.symbolRate 27MHz
 config **.satOut.modulation "\"QPSK\""
-config **.satOut.datarate 100bps
+config **.satOut.datarate 64Mbps
 config **.satOut.delay 250ms
 config **.satOut.bitErrorRate 1e-6
 config network GroundStations
-config **.radioMedium.typename UnitDiskRadioMedium
-config **.satellite[*].radio.typename APSKScalarRadio
-config **.satellite[*].radio.centerFrequency 4GHz
-config **.satellite[*].radio.bandwidth 36MHz
-config **.satellite[*].radio.transmitter.power 100W
-config **.satellite[*].radio.transmitter.headerBitLength 100b
-config **.satellite[*].radio.transmitter.modulation "\"QPSK\""
-config **.mcc[*].radio.typename APSKScalarRadio
-config **.mcc[*].radio.centerFrequency 4GHz
-config **.mcc[*].radio.bandwidth 36MHz
-config **.mcc[*].radio.receiver.modulation "\"QPSK\""
 config **.constraintAreaMinX 0m
 config **.constraintAreaMaxX 2160m
 config **.constraintAreaMinY 0m
@@ -124,14 +113,14 @@ vector 9 GroundStations.satellite[0].downlinkOut[4].channel activeCarriers:vecto
 attr recordingmode vector
 attr source carrierId
 attr title "Number of active carriers"
-0	5326 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-1	5345 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-2	5364 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-3	5383 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-4	5402 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-5	5421 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-6	5440 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-7	5459 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-8	5478 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-9	5497 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+0	4751 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+1	4770 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+2	4789 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+3	4808 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+4	4827 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+5	4846 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+6	4865 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+7	4884 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+8	4903 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+9	4922 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
 

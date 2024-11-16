@@ -19,6 +19,7 @@ public:
 
     // returns latitude
     double getLUTPositionY() const;
+    const Coord& getRealWorldPosition() const { return realWorldPosition; }
 
     virtual const Coord& getCurrentPosition() override;
 
@@ -26,7 +27,7 @@ protected:
     virtual void initialize(int) override;
 
     virtual void setInitialPosition() override;
-
+    Coord realWorldPosition;
     double latitude, longitude;   // Geographic coordinates
     double mapx, mapy;            // Coordinates on map
 };

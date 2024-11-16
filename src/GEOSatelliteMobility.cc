@@ -1,5 +1,6 @@
 #include "GEOSatelliteMobility.h"
 #include <inet/common/INETMath.h>
+#include "GEOUtils.h"
 
 using namespace inet;
 using namespace inet::math;
@@ -16,9 +17,13 @@ void GEOSatelliteMobility::initialize(int stage)
         mapy = std::atoi(getParentModule()->getParentModule()->getDisplayString().getTagArg("bgb", 1));
 
         longitude = par("longitude");
+
+        realWorldPosition = toECEF(0, longitude, altitude);
         setInitialPosition();
+        EV << "GEOSatelliteMobility Initialized" << endl;
     }
-    EV << "GEOSatelliteMobility Initialized" << endl;
+
+
 
 }
 

@@ -3,7 +3,6 @@
 
 #include <omnetpp.h>
 #include <inet/common/geometry/common/Coord.h>
-#include <inet/physicallayer/wireless/common/contract/packetlevel/IRadio.h>
 #include <cmath>
 
 class GEOSatelliteAntenna : public omnetpp::cSimpleModule
@@ -22,11 +21,19 @@ class GEOSatelliteAntenna : public omnetpp::cSimpleModule
 
     virtual void initialize() override;
 //    virtual double calculateAzimuthAngle(const inet::Coord& targetPosition);
-    virtual double calculateFreeSpacePathLoss(const inet::Coord& targetPosition, double frequency); // Added frequency
+
 
   public:
     bool isWithinCoverage(const inet::Coord& targetPosition);
     double calculateElevationAngle(const inet::Coord& targetPosition);
+    void setDiameter(double d) { diameter = d; }
+    void setBeamWidth(double bw) { beamWidth = bw; }
+    void setGain(double g) { gain = g; }
+    void setPolarization(const std::string& p) { polarization = p; }
+    void setPointingAccuracy(double pa) { pointingAccuracy = pa; }
+    void setPower(double p) { power = p; }
+    double getGain() const {return gain;}
+    double getDiameter() const {return diameter;}
 };
 
 #endif

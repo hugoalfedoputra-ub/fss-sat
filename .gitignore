@@ -1,4 +1,7 @@
 Makefile
+src/Makefile.*
+**/*.exe
 out
 repopack-output.txt
-repomix-output.txt
+simulations/results
+out

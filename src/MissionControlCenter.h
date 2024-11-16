@@ -4,29 +4,17 @@
 #include <omnetpp.h>
 #include <inet/common/INETDefs.h>
 #include <inet/common/TagBase.h>
+#include <inet/common/geometry/common/Coord.h>
 #include <random>
 
 using namespace inet;
 using namespace omnetpp;
 
-class TargetTag : public inet::TagBase
-{
-private:
-    int targetMCC;
-public:
-    TargetTag() : targetMCC(-1) {}
-    virtual void setTarget(int target) { targetMCC = target; }
-    virtual int getTarget() const { return targetMCC; }
-    virtual const char* getName() const override { return "TargetTag"; }
-    virtual std::string str() const override { return ""; }
-};
-
-
 class MissionControlCenter : public cSimpleModule
 {
 protected:
     simtime_t iaTime;
-    std::mt19937 rng; // Random number generator
+    std::mt19937 rng;
 
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;

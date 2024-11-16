@@ -1,7 +1,4 @@
 #include "GEOSatelliteCommunications.h"
-#include <inet/physicallayer/wireless/common/contract/packetlevel/ITransmission.h>
-#include <inet/physicallayer/wireless/common/radio/packetlevel/Radio.h>
-#include <inet/physicallayer/wireless/common/contract/packetlevel/IWirelessSignal.h>
 #include "MissionControlCenter.h"
 
 using namespace inet;
@@ -46,10 +43,10 @@ void GEOSatelliteCommunications::handleMessage(cMessage *msg)
            << " from gate: " << msg->getArrivalGate()->getFullName()
            << " size: " << packet->getByteLength() << " bytes" << endl;
 
-         packetQueue.push(packet);  // Add packet to the queue
-        if (!queueProcessingEvent->isScheduled()){
+        packetQueue.push(packet);  // Add packet to the queue
+
+        if (!queueProcessingEvent->isScheduled())
             scheduleAt(simTime(), queueProcessingEvent);
-        }
     } else {
         EV_WARN << "Received non-packet message, discarding" << endl;
         delete msg;
@@ -59,14 +56,14 @@ void GEOSatelliteCommunications::handleMessage(cMessage *msg)
 void GEOSatelliteCommunications::processQueue()
 {
     if (packetQueue.empty()) {
-           return;
-       }
+        EV << "processQueue called but queue is empty." << endl; // New: Log empty queue
+        return;
+    }
 
     Packet* packet = packetQueue.front();
     packetQueue.pop();
-
     try {
-        emit(broadcastSignal, packet->getByteLength());
+       emit(broadcastSignal, packet->getByteLength());
 
        // 1. Retrieve the target MCC from the packet tag
        int targetMCC = packet->getTag<TargetTag>()->getTarget();
@@ -90,6 +87,6 @@ void GEOSatelliteCommunications::processQueue()
     }
 
     if (!packetQueue.empty()) {
-         scheduleAt(simTime() + 0.00001, queueProcessingEvent); // Schedule for next packet
-     }
+         scheduleAt(simTime() + 0.00001, queueProcessingEvent);
+    }
 }
