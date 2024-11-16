@@ -1,4 +1,5 @@
-#include "LUTMotionMobility.h"
+#include "GroundStationMobility.h"
+
 #include <cmath>
 #include "GEOUtils.h"
 

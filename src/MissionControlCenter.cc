@@ -1,11 +1,11 @@
 #include "MissionControlCenter.h"
-#include "LUTMotionMobility.h"
 #include <inet/common/packet/Packet.h>
 #include <inet/common/packet/chunk/ByteCountChunk.h>
 #include <inet/common/Units.h>
 #include <inet/common/INETMath.h>
 #include "Tags.h"
 #include <random>
+#include "GroundStationMobility.h"
 
 using namespace inet;
 using namespace inet::math;

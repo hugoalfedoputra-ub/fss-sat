@@ -38,7 +38,7 @@ OBJS = \
     $O/src/GEOSatelliteCommunications.o \
     $O/src/GEOSatelliteMobility.o \
     $O/src/GEOUtils.o \
-    $O/src/LUTMotionMobility.o \
+    $O/src/GroundStationMobility.o \
     $O/src/MissionControlCenter.o \
     $O/src/SCPCChannel.o
 
