@@ -19,8 +19,7 @@ double calculateFreeSpacePathLoss(const Coord& transmitterPosition, const Coord&
             throw domain_error("Distance between transmitter and receiver must be positive.");
         }
 
-        // Convert frequency to Hz if given in GHz
-        double freq = frequency * 1e9;
+        double freq = frequency;
 
         // Speed of light in m/s
         const double c = 3e8;

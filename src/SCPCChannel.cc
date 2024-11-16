@@ -1,9 +1,9 @@
-#include "SCPCChannel.h"
-#include "GEOSatelliteMobility.h"
-
 #include <inet/common/ModuleAccess.h>
 #include <inet/common/packet/Packet.h>
 #include <inet/common/geometry/common/Coord.h>
+#include "SCPCChannel.h"
+#include "GEOSatelliteMobility.h"
+#include "GEOUtils.h"
 
 Define_Channel(SCPCChannel);
 std::set<double> SCPCChannel::activeCarriers;
@@ -68,7 +68,7 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
         if (packet->hasTag<TargetTag>()) {
             const Coord& targetPosition = packet->getTag<TargetTag>()->getPosition();
 
-            EV << targetPosition << endl;
+            EV << "FROM " << targetPosition << endl;
 
             auto mobilityModule = dynamic_cast<GEOSatelliteMobility*>(getSimulation()->getModuleByPath("GroundStations.satellite[0].mobility"));
             if (!mobilityModule) {
@@ -78,16 +78,25 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
 
             EV << "Sat Pos : " << satPosition << endl;
 
+            // Calculate Free Space Path Loss using the function from GEOUtils
+            try {
+                EV << "Calculating FSPL for Freq: " << carrierFrequency << " Hz";
+                double pathloss_dB = calculateFreeSpacePathLoss(satPosition, targetPosition, carrierFrequency);
+                EV << "Path loss to target: " << pathloss_dB << " dB\n";
 
-//            double pathloss_dB = antenna.calculateFreeSpacePathLoss(targetPosition, carrierFrequency);
-//            EV << pathloss_dB << endl;
+                auto powerTag = packet->addTagIfAbsent<PowerTag>();
+                double power_dBm = powerTag->getPower_dBm(); // Get initial power (if any) or use a default value if not set.
+                power_dBm -= pathloss_dB;                     // Apply path loss
+                powerTag->setPower_dBm(power_dBm);            // Update power tag
 
-//            EV << "Path loss to target: " << pathloss_dB << " dB\n";
-//
-//            auto powerTag = packet->addTagIfAbsent<PowerTag>();
-//            double power_dBm = powerTag->getPower_dBm(); // Get initial power (if any)
-//            power_dBm -= pathloss_dB;                     // Apply path loss
-//            powerTag->setPower_dBm(power_dBm);            // Update power tag
+            } catch (const std::exception& e) {
+                EV_ERROR << "Error calculating path loss: " << e.what() << endl;
+                // Handle the error appropriately, e.g., drop the packet.
+                // result.discard = true;  // Example: Discard the packet
+                throw; // Re-throw the exception to let higher levels handle it
+               return result;
+            }
+
 
         } else {
             EV_WARN << "Packet does not have TargetPositionTag, cannot calculate path loss!\n";
