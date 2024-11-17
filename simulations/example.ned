@@ -139,7 +139,7 @@ channel SCPCLink extends ned.DatarateChannel
         double symbolRate @unit(Hz) = default(27MHz);
         string modulation = default("QPSK");
         datarate = default(100Mbps);
-        double weatherModel = default(0.0);
+        double weatherModel @unit(mm);
         double processingDelay = default(0.01); // 10 us
         double bitErrorRate = default(0);
         double packetErrorRate = default(0);

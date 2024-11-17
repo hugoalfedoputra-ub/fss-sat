@@ -44,6 +44,14 @@ void GEOSatelliteCommunications::handleMessage(cMessage *msg)
         auto powerTag = packet->addTagIfAbsent<PowerTag>();
 
         // Step 4: Satellite Reception and Received Power Calculation
+        double old_power_dBm = powerTag->getReceivedPower_dBm();
+
+        if (old_power_dBm < noiseFloor_dBm) {
+            EV << "Uplink signal below noise floor (" << noiseFloor_dBm << " dBm), PACKET IS LOST AT SAT.\n";
+            delete msg;
+            return;
+        }
+
         double eirp_dBm = powerTag->getEIRP_dBm();
         double fspl_dB = powerTag->getFSPL_dB(); // Get FSPL from the tag
         double receiveGain_dBi = getParentModule()->getSubmodule("antenna")->par("gain").doubleValue();  // Satellite receive gain
@@ -56,12 +64,6 @@ void GEOSatelliteCommunications::handleMessage(cMessage *msg)
         EV << "Step 4: FSPL: " << fspl_dB << " dB\n";
         EV << "Step 4: Receive Gain (Gr_sat): " << receiveGain_dBi << " dBi\n";
         EV << "Step 4: Received Power (Pr_sat): " << receivedPower_dBm << " dBm\n";
-
-        if (receivedPower_dBm < noiseFloor_dBm) {
-            EV << "Uplink signal below noise floor (" << noiseFloor_dBm << " dBm), PACKET IS LOST AT SAT.\n";
-            delete msg;
-            return;
-        }
 
         // Step 5: Satellite Amplification (Example)
         // Rationale for amplification_dB: https://itso.int/wp-content/uploads/2018/04/Presentation-by-Intelsat.pdf

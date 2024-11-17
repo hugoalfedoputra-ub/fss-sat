@@ -38,7 +38,7 @@ public:
     double getCarrierFrequency() const { return carrierFrequency; }
     double calculateAtmosphericLoss(double frequencyGHz, double weatherModel) {
         // Simplified ITU-R P.676 model
-        return 0.002 * pow(weatherModel, 0.85) * pow(frequencyGHz, 2.3);
+        return 0.002 * pow(weatherModel, 0.85) * pow((frequencyGHz / 1000000000.0), 2.3);
     }
 };
 

@@ -95,26 +95,27 @@ void MissionControlCenter::handleMessage(cMessage *msg)
             auto powerTag = receivedPacket->getTagForUpdate<PowerTag>();
 
             // Step 7: Calculate received Power
-            double fspl_db = powerTag->getFSPL_dB();
-            double receiveGain_dBi = antenna->getGain(); // Earth Station gain
-            double eirp_sat = powerTag->getEIRP_dBm(); // Assuming the satellite transmits with its own EIRP, you might need to fetch this from the packet.
+            double old_power_dBm = powerTag->getReceivedPower_dBm();
 
-            double receivedPower_dBm = eirp_sat - fspl_db + receiveGain_dBi; // Corrected the order for path loss subtraction
-
-            powerTag->setReceivedPower_dBm(receivedPower_dBm);
-            powerTag->setReceiveGain_dBi(receiveGain_dBi);
-
-            EV << "Step 8: Satellite EIRP (EIRP_sat): " << eirp_sat << " dBm\n";
-            EV << "Step 8: FSPL: " << fspl_db << " dB\n";
-            EV << "Step 8: Receive Gain (Gr_earth): " << receiveGain_dBi << " dBi\n";
-            EV << "Step 8: Received Power (Pr_earth): " << receivedPower_dBm << " dBm\n";
-
-            if (receivedPower_dBm < noiseFloor_dBm) {
+            if (old_power_dBm < noiseFloor_dBm) {
                 EV << "Downlink Signal below noise floor (" << noiseFloor_dBm << " dBm), PACKET IS LOST AT MCC.\n";
                 delete receivedPacket;  // Delete the packet
                 return;
             }
 
+            double fspl_atmosphere_db = powerTag->getFSPL_dB();
+            double receiveGain_dBi = antenna->getGain(); // Earth Station gain
+            double eirp_sat = powerTag->getEIRP_dBm(); // Assuming the satellite transmits with its own EIRP, you might need to fetch this from the packet.
+
+            double receivedPower_dBm = eirp_sat - fspl_atmosphere_db + receiveGain_dBi; // Corrected the order for path loss subtraction
+
+            powerTag->setReceivedPower_dBm(receivedPower_dBm);
+            powerTag->setReceiveGain_dBi(receiveGain_dBi);
+
+            EV << "Step 8: Satellite EIRP (EIRP_sat): " << eirp_sat << " dBm\n";
+            EV << "Step 8: FSPL: " << fspl_atmosphere_db << " dB\n";
+            EV << "Step 8: Receive Gain (Gr_earth): " << receiveGain_dBi << " dBi\n";
+            EV << "Step 8: Received Power (Pr_earth): " << receivedPower_dBm << " dBm\n";
 
         } else {
             EV << "MCC " << getIndex() << " received UPLINK packet " << receivedPacket << endl;

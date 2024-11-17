@@ -128,8 +128,8 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
             power_dBm -= atmosphericLoss_dB;
             powerTag->setReceivedPower_dBm(power_dBm);
 
-            EV << "Step 3 & 7: FSPL: " << fspl_dB << " dB\n";
-            EV << "Step 3 & 7: Received Power (after FSPL and Atmospheric Loss): " << power_dBm << " dBm\n";
+            EV << "Step 3 (UPLINK) / 7 (DOWNLINK): FSPL: " << fspl_dB << " dB\n";
+            EV << "Step 3 (UPLINK) / 7 (DOWNLINK): Received Power (after FSPL and Atmospheric Loss): " << power_dBm << " dBm\n";
 
         } catch (const std::exception& e) {
             EV_ERROR << "Error calculating path loss: " << e.what() << endl;
