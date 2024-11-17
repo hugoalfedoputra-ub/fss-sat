@@ -28,18 +28,6 @@ void SCPCChannel::initialize()
     datarate = par("datarate").doubleValue();
     modulation = par("modulation").stdstringValue();
 
-    antenna.setDiameter(2.4);        // Example: 2.4 meters
-    antenna.setBeamWidth(1.2);      // Example: 1.2 degrees
-    antenna.setGain(35.0);          // Example: 35 dB
-    antenna.setPolarization("circular");  // Example
-    antenna.setPointingAccuracy(0.1); // Example: 0.1 degrees
-    antenna.setPower(100.0);        // Example: 100 Watts
-
-    EV << "SCPCChannel initialized for " << carrierFrequency
-       << ", antenna diameter: " << antenna.getDiameter()
-       << ", antenna gain: " << antenna.getGain() << " dB" << endl;
-
-
     // Check for carrier frequency collision
     if (activeCarriers.find(carrierFrequency) != activeCarriers.end()) {
         throw cRuntimeError("Carrier frequency %f Hz is already in use", carrierFrequency);
@@ -51,7 +39,40 @@ void SCPCChannel::initialize()
     // Emit initial signal
     emit(registerSignal("carrierId"), (long)carrierFrequency);
 
-    EV << "SCPCChannel initialized for " << carrierFrequency << endl;
+    // Get source and destination modules
+    cGate *srcGate = getSourceGate();
+    cGate *destGate = srcGate->getNextGate();
+
+
+    std::string srcModuleName = srcGate->getOwnerModule()->getFullPath();
+    std::string destModuleName = destGate->getOwnerModule()->getFullPath();
+
+    // Get antenna gains and determine link direction
+    double srcAntennaGain = 0;
+    double destAntennaGain = 0;
+    std::string linkDirection;
+
+    std::string srcModuleType = srcGate->getOwnerModule()->getModuleType()->getName();
+    std::string destModuleType = destGate->getOwnerModule()->getModuleType()->getName();
+
+    if (srcModuleType.compare("GEOSatellite") == 0) {
+        srcAntennaGain = check_and_cast<GEOSatelliteAntenna*>(srcGate->getOwnerModule()->getSubmodule("antenna"))->getGain();
+        destAntennaGain = check_and_cast<GEOSatelliteAntenna*>(destGate->getOwnerModule()->getSubmodule("antenna"))->getGain();
+        linkDirection = "Downlink";
+    } else if (destModuleType.compare("GEOSatellite") == 0) {
+        srcAntennaGain = check_and_cast<GEOSatelliteAntenna*>(srcGate->getOwnerModule()->getSubmodule("antenna"))->getGain();
+        destAntennaGain = check_and_cast<GEOSatelliteAntenna*>(destGate->getOwnerModule()->getSubmodule("antenna"))->getGain();
+        linkDirection = "Uplink";
+    }
+
+    EV << "SCPCChannel initialized:" << endl
+       << "  Carrier Frequency: " << carrierFrequency << " Hz" << endl
+       << "  Link Direction: " << linkDirection << endl
+       << "  Source: " << srcModuleName << " (Gain: " << srcAntennaGain << " dB)" << endl
+       << "  Destination: " << destModuleName << " (Gain: " << destAntennaGain << " dB)" << endl
+       << "  Bandwidth: " << bandwidth << " Hz" << endl
+       << "  Symbol Rate: " << symbolRate << " Hz" << endl
+       << "  Modulation: " << modulation << endl;
 }
 
 cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& options, simtime_t t)

@@ -10,12 +10,11 @@ void GEOSatelliteAntenna::initialize()
 {
     diameter = par("diameter");
     beamWidth = par("beamWidth");
-    gain = par("gain");
+    gain = par("gain").doubleValue();;
     polarization = par("polarization").stdstringValue();
     pointingAccuracy = par("pointingAccuracy");
     power = par("power");
-
-    EV << "GEOSatelliteAntenna Initialized " << endl;
+    EV << "GEOSatelliteAntenna" << gain << "dB" << " Initialized " << endl;
 
 }
 

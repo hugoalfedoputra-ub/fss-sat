@@ -5,7 +5,6 @@
 #include <inet/common/INETMath.h>
 #include "Tags.h"
 #include <random>
-#include "GroundStationMobility.h"
 
 using namespace inet;
 using namespace inet::math;
@@ -18,6 +17,13 @@ void MissionControlCenter::initialize()
 
     // Initialize random number generator
     rng.seed(time(0) + getIndex()); // Seed based on time and MCC index
+
+    antenna = check_and_cast<GEOSatelliteAntenna*>(getSubmodule("antenna"));
+    if (!antenna) {
+        throw cRuntimeError("Antenna module not found in MCC");
+    }
+
+    EV << "MCC " << getIndex() << " Antenna " << antenna->getGain() << endl;
 
     EV << "MCC " << getIndex() << " iaTime " << iaTime << " Initialized" << endl;
 }
@@ -49,6 +55,9 @@ void MissionControlCenter::handleMessage(cMessage *msg)
         } else {
             EV_ERROR << "Mobility submodule not found" << endl;
         }
+
+        auto powerTag = packet->addTagIfAbsent<PowerTag>();
+        powerTag->setPower_mW(antenna->getPower());
 
         EV << "MCC " << getIndex() << " sending packet to MCC " << targetMCC << endl;
 

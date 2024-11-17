@@ -4,21 +4,6 @@ import inet.mobility.static.StationaryMobility;
 import inet.mobility.contract.IMobility;
 import inet.networklayer.common.NetworkInterface;
 
-channel SCPCLink extends ned.DatarateChannel
-{
-    parameters:
-        @class(SCPCChannel);
-        double carrierFrequency @unit(Hz);
-        double bandwidth @unit(Hz) = default(36MHz);
-        double symbolRate @unit(Hz) = default(27MHz);
-        string modulation = default("QPSK");
-        datarate = default(100Mbps);
-        double bitErrorRate = default(0);
-        double packetErrorRate = default(0);
-        @signal[carrierId](type=long);
-        @statistic[activeCarriers](title="Number of active carriers"; source=carrierId; record=vector,stats);
-}
-
 simple LUTMotionMobility extends StationaryMobility
 {
     parameters:
@@ -111,6 +96,11 @@ module MissionControlCenter
             parameters:
                 @display("p=194,103");
         }
+        antenna: GEOSatelliteAntenna {
+            parameters:
+                @display("p=150,150");
+        }
+        
 }
 
 network GroundStations
@@ -136,4 +126,19 @@ network GroundStations
             mcc[i].satOut --> SCPCLink --> satellite[j].uplinkIn[i];
             satellite[j].downlinkOut[i] --> SCPCLink --> mcc[i].satIn;
         }
+}
+
+channel SCPCLink extends ned.DatarateChannel
+{
+    parameters:
+        @class(SCPCChannel);
+        double carrierFrequency @unit(Hz);
+        double bandwidth @unit(Hz) = default(36MHz);
+        double symbolRate @unit(Hz) = default(27MHz);
+        string modulation = default("QPSK");
+        datarate = default(100Mbps);
+        double bitErrorRate = default(0);
+        double packetErrorRate = default(0);
+        @signal[carrierId](type=long);
+        @statistic[activeCarriers](title="Number of active carriers"; source=carrierId; record=vector,stats);
 }

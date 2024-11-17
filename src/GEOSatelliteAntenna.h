@@ -32,6 +32,7 @@ class GEOSatelliteAntenna : public omnetpp::cSimpleModule
     void setPolarization(const std::string& p) { polarization = p; }
     void setPointingAccuracy(double pa) { pointingAccuracy = pa; }
     void setPower(double p) { power = p; }
+    double getPower() const { return power; }
     double getGain() const {return gain;}
     double getDiameter() const {return diameter;}
 };

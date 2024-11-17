@@ -1,9 +1,9 @@
-file 4945 1731794556                                            
+file 5203 1731818458                                            
 version 3
-run SCPCConfig-0-20241117-05:00:10-19536
+run SCPCConfig-0-20241117-05:49:48-18136
 attr configname SCPCConfig
-attr datetime 20241117-05:00:10
-attr datetimef 20241117-050010
+attr datetime 20241117-05:49:48
+attr datetimef 20241117-054948
 attr experiment SCPCConfig
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -11,7 +11,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network GroundStations
-attr processid 19536
+attr processid 18136
 attr repetition 0
 attr replication #0
 attr resultdir results
@@ -47,7 +47,7 @@ config **.constraintAreaMinZ 0m
 config **.constraintAreaMaxZ 0m
 config **.numOfSatellites 1
 config **.satellite[0].mobility.longitude "(112.6145 + 104.0529 + 136.9018 + 105.4927 + 100.5926) / 5"
-config **.satellite[0].antenna.diameter 2.4m
+config **.satellite[0].antenna.diameter 3m
 config **.satellite[0].antenna.beamWidth 1.2deg
 config **.satellite[0].antenna.gain 35dB
 config **.satellite[0].antenna.polarization "\"circular\""
@@ -56,6 +56,12 @@ config **.satellite[0].antenna.power 100W
 config **.satellite[0].communications.cBandDownlinkFrequency 4GHz
 config **.satellite[0].communications.cBandUplinkFrequency 6GHz
 config **.numOfMCCs 5
+config **.mcc[*].antenna.diameter 30m
+config **.mcc[*].antenna.beamWidth 1.2deg
+config **.mcc[*].antenna.gain 70dB
+config **.mcc[*].antenna.polarization "\"circular\""
+config **.mcc[*].antenna.pointingAccuracy 0.1deg
+config **.mcc[*].antenna.power 3000W
 config **.mcc[0].mobility.latitude -7.9540
 config **.mcc[0].mobility.longitude 112.6145
 config **.mcc[0].cityName "\"FILKOM UB\""
@@ -113,14 +119,14 @@ vector 9 GroundStations.satellite[0].downlinkOut[4].channel activeCarriers:vecto
 attr recordingmode vector
 attr source carrierId
 attr title "Number of active carriers"
-0	4753 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-1	4772 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-2	4791 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-3	4810 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-4	4829 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-5	4848 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-6	4867 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-7	4886 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-8	4905 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-9	4924 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+0	5011 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+1	5030 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+2	5049 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+3	5068 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+4	5087 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+5	5106 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+6	5125 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+7	5144 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+8	5163 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+9	5182 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
 

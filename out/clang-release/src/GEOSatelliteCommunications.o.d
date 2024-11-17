@@ -35,7 +35,17 @@ out/clang-release//src/GEOSatelliteCommunications.o: \
   C:/omnetpp-6.1/samples/inet/src/inet/common/packet/tag/SharingTagSet.h \
   src/GEOSatelliteAntenna.h \
   C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/Coord.h \
-  src/Tags.h src/MissionControlCenter.h
+  src/Tags.h src/MissionControlCenter.h src/GroundStationMobility.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/mobility/static/StationaryMobility.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/mobility/base/StationaryMobilityBase.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/mobility/base/MobilityBase.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/common/ModuleAccess.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/common/StringFormat.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/CanvasProjection.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/RotationMatrix.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/EulerAngles.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/Quaternion.h \
+  C:/omnetpp-6.1/samples/inet/src/inet/mobility/contract/IMobility.h
 
 src/GEOSatelliteCommunications.h:
 
@@ -114,3 +124,25 @@ C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/Coord.h:
 src/Tags.h:
 
 src/MissionControlCenter.h:
+
+src/GroundStationMobility.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/mobility/static/StationaryMobility.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/mobility/base/StationaryMobilityBase.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/mobility/base/MobilityBase.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/common/ModuleAccess.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/common/StringFormat.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/CanvasProjection.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/RotationMatrix.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/EulerAngles.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/common/geometry/common/Quaternion.h:
+
+C:/omnetpp-6.1/samples/inet/src/inet/mobility/contract/IMobility.h:
