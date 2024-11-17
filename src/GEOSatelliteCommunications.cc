@@ -1,9 +1,14 @@
 #include "GEOSatelliteCommunications.h"
 #include "MissionControlCenter.h"
 #include "Tags.h"
+#include <fstream>
 
 using namespace inet;
 using namespace omnetpp;
+
+namespace { // Anonymous namespace
+    int packetsLost = 0;
+}
 
 Define_Module(GEOSatelliteCommunications);
 
@@ -18,6 +23,11 @@ void GEOSatelliteCommunications::initialize()
 
     // ... initialize other parameters
     queueProcessingEvent = new cMessage("processQueue");
+
+    packetsLost = 0;
+
+    configName = par("configName").stdstringValue();
+    EV << "GEOSatelliteCommunications initialized with config: " << configName << endl;
 
     EV << "MissionControlCenter: noiseFloor_dBm = " << noiseFloor_dBm << endl;
     EV << "GEOSatelliteCommunications Initialized " << endl;
@@ -48,6 +58,7 @@ void GEOSatelliteCommunications::handleMessage(cMessage *msg)
 
         if (old_power_dBm < noiseFloor_dBm) {
             EV << "Uplink signal below noise floor (" << noiseFloor_dBm << " dBm), PACKET IS LOST AT SAT.\n";
+            packetsLost++;
             delete msg;
             return;
         }
@@ -133,5 +144,19 @@ void GEOSatelliteCommunications::processQueue()
 
     if (!packetQueue.empty()) {
          scheduleAt(simTime() + 0.00001, queueProcessingEvent);
+    }
+}
+
+void GEOSatelliteCommunications::finish()
+{
+    // Write packet loss data to a file
+    std::string filename = configName + "_sat_packet_lost.txt";
+    std::ofstream outputFile(filename.c_str());
+
+    if (outputFile.is_open()) {
+        outputFile << "Satellite: Packets Lost = " << packetsLost << std::endl;
+        outputFile.close();
+    } else {
+        EV_ERROR << "Could not open file for writing: " << filename << std::endl;
     }
 }

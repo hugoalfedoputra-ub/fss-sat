@@ -8,18 +8,25 @@
 #include "GEOSatellite.h"
 #include "GEOUtils.h"
 #include "Tags.h"
+#include <fstream>
+#include <iostream>
+#include <mutex>
 
 Define_Channel(SCPCChannel);
 std::set<double> SCPCChannel::activeCarriers;
 
 using namespace inet;
 
+namespace { // Anonymous namespace to keep these variables file-local
+    std::ofstream outputFile; // Single global file stream
+    std::mutex fileMutex; // Mutex for file access synchronization
+}
+
 SCPCChannel::SCPCChannel() {}  // No implementation here
 
 SCPCChannel::~SCPCChannel() {
     activeCarriers.erase(carrierFrequency);
 }
-
 
 void SCPCChannel::initialize(int stage)
 {
@@ -63,6 +70,24 @@ void SCPCChannel::initialize(int stage)
         if (!dstAntenna) {
             throw cRuntimeError("Destination antenna module not found");
         }
+
+        configName = par("configName").stdstringValue();
+        // Open the output file and write headers ONLY ONCE
+        { // Scope for the lock
+            std::lock_guard<std::mutex> lock(fileMutex); // Acquire lock
+
+            if (!outputFile.is_open()) { // Check if the file is already open
+                std::string filename = configName + "_scpc_channel_data.txt";
+                outputFile.open(filename.c_str());
+                if (outputFile.is_open()) {
+                    outputFile << "simTime,atmosphericLoss_dB,fspl_dB,power_dBm" << std::endl;
+                } else {
+                    throw cRuntimeError("Error opening output file: %s", filename.c_str());
+                }
+            }
+        } // Release lock when leaving scope
+
+        EV << "SCPCChannel initialized with config: " << configName << endl;
 
         EV << "SCPCChannel initialized: " << endl;
         EV << "    Carrier Frequency: " << carrierFrequency << " Hz" << endl;
@@ -128,6 +153,18 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
             power_dBm -= atmosphericLoss_dB;
             powerTag->setReceivedPower_dBm(power_dBm);
 
+            { // Scope for the lock
+                std::lock_guard<std::mutex> lock(fileMutex);  // Acquire lock
+
+                if (outputFile.is_open()) {
+                    EV << "Mutex acquired and is writing to file... " << simTime() << "," << atmosphericLoss_dB << "," << fspl_dB << "," << power_dBm << endl;
+                    outputFile << simTime() << "," << atmosphericLoss_dB << "," << fspl_dB << "," << power_dBm << std::endl;
+                } else {
+                    EV_ERROR << "Output file is not open!" << std::endl;
+                }
+
+            } // Release lock
+
             EV << "Step 3 (UPLINK) / 7 (DOWNLINK): FSPL: " << fspl_dB << " dB\n";
             EV << "Step 3 (UPLINK) / 7 (DOWNLINK): Received Power (after FSPL and Atmospheric Loss): " << power_dBm << " dBm\n";
 
@@ -165,4 +202,11 @@ void SCPCChannel::finish()
     // Clean up carrier registration
     activeCarriers.erase(carrierFrequency);
     cDatarateChannel::finish();
+
+    { // Scope for lock
+        std::lock_guard<std::mutex> lock(fileMutex);
+        if (outputFile.is_open()) {
+            outputFile.close();
+        }
+    }
 }

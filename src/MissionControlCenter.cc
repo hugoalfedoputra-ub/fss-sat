@@ -5,9 +5,15 @@
 #include <inet/common/INETMath.h>
 #include "Tags.h"
 #include <random>
+#include <fstream>
 
 using namespace inet;
 using namespace inet::math;
+
+namespace { // Anonymous namespace to keep variables local to this file
+    int packetsLost = 0;
+}
+
 Define_Module(MissionControlCenter);
 
 void MissionControlCenter::initialize(int stage)
@@ -24,6 +30,11 @@ void MissionControlCenter::initialize(int stage)
         if (!antenna) {
             throw cRuntimeError("Antenna module not found in MCC");
         }
+
+        packetsLost = 0;
+
+        configName = par("configName").stdstringValue();
+        EV << "MissionControlCenter initialized with config: " << configName << endl;
 
         noiseFloor_dBm = par("noiseFloor").doubleValue();
         EV << "GEOSatelliteCommunications: noiseFloor_dBm = " << noiseFloor_dBm << endl;
@@ -99,6 +110,7 @@ void MissionControlCenter::handleMessage(cMessage *msg)
 
             if (old_power_dBm < noiseFloor_dBm) {
                 EV << "Downlink Signal below noise floor (" << noiseFloor_dBm << " dBm), PACKET IS LOST AT MCC.\n";
+                packetsLost++;
                 delete receivedPacket;  // Delete the packet
                 return;
             }
@@ -124,6 +136,18 @@ void MissionControlCenter::handleMessage(cMessage *msg)
 }
 void MissionControlCenter::finish()
 {
+    // Write packet loss statistics to file
+    std::ofstream outputFile;
+    std::string filename = configName + "_mcc_packet_lost.txt";
+    outputFile.open(filename.c_str());
+
+    if (outputFile.is_open()) {
+        outputFile << "MCC " << getIndex() << ": Packets Lost = " << packetsLost << std::endl;
+        outputFile.close();
+    } else {
+        EV_ERROR << "Error opening output file: " << filename << std::endl;
+    }
+
     EV << "MCC " << getIndex() << " finished." << endl;
 }
 

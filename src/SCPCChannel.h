@@ -7,6 +7,7 @@
 #include <set>
 #include "GEOSatelliteAntenna.h"
 #include "Tags.h"
+#include <fstream>
 using namespace omnetpp;
 
 // WeatherModel: THUNDERSTORM, RAIN, SUNNY
@@ -21,9 +22,10 @@ protected:
     double weatherModel;
     std::string modulation;
     static std::set<double> activeCarriers;
+//    std::ofstream outputFile;
 //    GEOSatelliteAntenna *txAntenna;
 //    GEOSatelliteAntenna *rxAntenna;
-
+    std::string configName;
     virtual void initialize(int) override;
     virtual int numInitStages() const override { return 3; }
     virtual cChannel::Result processMessage(cMessage *msg, const SendOptions& options, simtime_t t) override;

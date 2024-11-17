@@ -19,7 +19,7 @@ protected:
     std::mt19937 rng;
     GEOSatelliteAntenna *antenna;
     double noiseFloor_dBm;
-
+    std::string configName;
     virtual void initialize(int) override;
     virtual int numInitStages() const override { return 2; }
     virtual void handleMessage(cMessage *msg) override;

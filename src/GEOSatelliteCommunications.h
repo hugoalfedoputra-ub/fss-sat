@@ -20,11 +20,14 @@ class GEOSatelliteCommunications : public cSimpleModule
     std::queue<Packet*> packetQueue; // Queue for storing packets
     cMessage *queueProcessingEvent;
 
+    std::string configName;
     // ... other C-band parameters (bandwidth, power, etc.)
 
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
     void processQueue();
+    virtual void finish() override;
+
   public:
     virtual std::string getInfo() const {
         std::stringstream out;

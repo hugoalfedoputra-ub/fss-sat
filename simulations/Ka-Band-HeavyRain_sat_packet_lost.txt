@@ -1,0 +1,1 @@
+Satellite: Packets Lost = 12465

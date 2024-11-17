@@ -29,6 +29,7 @@ simple GEOSatelliteAntenna
 simple GEOSatelliteCommunications
 {
     parameters:
+        string configName;
         // Communication parameters
         int numOfMCCs;
         double cBandDownlinkFrequency @unit(Hz);
@@ -83,6 +84,7 @@ module GEOSatellite
 module MissionControlCenter
 {
     parameters:
+        string configName;
         string cityName = default("");
         string mobilityType = default("GroundStationMobility");
         double iaTime @unit(s);
@@ -133,6 +135,7 @@ network GroundStations
 channel SCPCLink extends ned.DatarateChannel
 {
     parameters:
+        string configName;
         @class(SCPCChannel);
         double carrierFrequency @unit(Hz);
         double bandwidth @unit(Hz) = default(36MHz);
