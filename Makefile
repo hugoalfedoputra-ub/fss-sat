@@ -34,6 +34,7 @@ O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
 OBJS = \
+    $O/src/GEOSatellite.o \
     $O/src/GEOSatelliteAntenna.o \
     $O/src/GEOSatelliteCommunications.o \
     $O/src/GEOSatelliteMobility.o \

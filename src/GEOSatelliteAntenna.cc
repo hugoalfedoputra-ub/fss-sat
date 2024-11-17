@@ -14,8 +14,10 @@ void GEOSatelliteAntenna::initialize()
     polarization = par("polarization").stdstringValue();
     pointingAccuracy = par("pointingAccuracy");
     power = par("power");
-    EV << "GEOSatelliteAntenna" << gain << "dB" << " Initialized " << endl;
 
+    EV << "GEOSatelliteAntenna Initialized with: " << endl;
+    EV << "  Diameter: " << diameter << " m" << endl; // Print the values for debugging
+    EV << "  Beam Width: " << beamWidth << " deg" << endl;
 }
 
 bool GEOSatelliteAntenna::isWithinCoverage(const Coord& targetPosition)

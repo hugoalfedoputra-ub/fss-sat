@@ -34,6 +34,16 @@ class GEOSatelliteMobility : public MobilityBase
 
     double getLongitude() const { return longitude; }
     double getAltitude() const { return altitude; }
-    const Coord& getRealWorldPosition() const { return realWorldPosition; }};
+    const Coord& getRealWorldPosition() const { return realWorldPosition; }
+    virtual std::string getInfo() const {
+        std::stringstream out;
+        out << "Longitude: " << longitude << ", ";
+        out << "Altitude: " << altitude << " m, ";
+        out << "Real Pos: " << realWorldPosition;
+        return out.str();
+    }
+
+
+};
 
 #endif /* GEOSATELLITEMOBILITY_H_ */

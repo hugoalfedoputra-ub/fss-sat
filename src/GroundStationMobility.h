@@ -11,7 +11,7 @@ using namespace inet;
 //
 // Positions a ground station at a specific lat/long
 //-----------------------------------------------------
-class LUTMotionMobility : public inet::StationaryMobility
+class GroundStationMobility : public inet::StationaryMobility
 {
 public:
     // returns longitude

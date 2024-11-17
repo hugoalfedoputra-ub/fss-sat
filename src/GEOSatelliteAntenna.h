@@ -35,6 +35,17 @@ class GEOSatelliteAntenna : public omnetpp::cSimpleModule
     double getPower() const { return power; }
     double getGain() const {return gain;}
     double getDiameter() const {return diameter;}
+    virtual std::string getInfo() const {
+        std::stringstream out;
+        out << "Diameter: " << diameter << " m, ";
+        out << "Beam Width: " << beamWidth << " deg, ";
+        out << "Gain: " << gain << " dBi, ";
+        out << "Polarization: " << polarization << ", ";
+        out << "Pointing Accuracy: " << pointingAccuracy << " deg, ";
+        out << "Power: " << power << " W";
+        return out.str();
+    }
+
 };
 
 #endif

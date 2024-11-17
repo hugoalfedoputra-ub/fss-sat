@@ -4,9 +4,9 @@
 #include "GEOUtils.h"
 
 using namespace inet;
-Define_Module(LUTMotionMobility);
+Define_Module(GroundStationMobility);
 
-void LUTMotionMobility::initialize(int stage)
+void GroundStationMobility::initialize(int stage)
 {
 
     StationaryMobility::initialize(stage);
@@ -29,23 +29,23 @@ void LUTMotionMobility::initialize(int stage)
     }
 }
 
-double LUTMotionMobility::getLUTPositionX() const
+double GroundStationMobility::getLUTPositionX() const
 {
     return longitude;
 }
-double LUTMotionMobility::getLUTPositionY() const
+double GroundStationMobility::getLUTPositionY() const
 {
     return latitude;
 }
 
-const Coord& LUTMotionMobility::getCurrentPosition()
+const Coord& GroundStationMobility::getCurrentPosition()
 {
     //return Coord(longitude, latitude);
     return lastPosition;
 }
 
 
-void LUTMotionMobility::setInitialPosition()
+void GroundStationMobility::setInitialPosition()
 {
    lastPosition.x = ((mapx * longitude) / 360) + (mapx / 2);
    //lastPosition.x = (2160 + (longitude+180))/360;

@@ -10,22 +10,24 @@ using namespace inet;
 using namespace inet::math;
 Define_Module(MissionControlCenter);
 
-void MissionControlCenter::initialize()
+void MissionControlCenter::initialize(int stage)
 {
-    iaTime = par("iaTime").doubleValue();
-    scheduleAt(simTime() + iaTime, new cMessage("sendMsg"));
+//    EV_INFO << "GEOSatellite::initialize stage " << stage << endl;
+    if (stage == 1) {
+        iaTime = par("iaTime").doubleValue();
+        scheduleAt(simTime() + iaTime, new cMessage("sendMsg"));
 
-    // Initialize random number generator
-    rng.seed(time(0) + getIndex()); // Seed based on time and MCC index
+        // Initialize random number generator
+        rng.seed(time(0) + getIndex()); // Seed based on time and MCC index
 
-    antenna = check_and_cast<GEOSatelliteAntenna*>(getSubmodule("antenna"));
-    if (!antenna) {
-        throw cRuntimeError("Antenna module not found in MCC");
+        antenna = check_and_cast<GEOSatelliteAntenna*>(getSubmodule("antenna"));
+        if (!antenna) {
+            throw cRuntimeError("Antenna module not found in MCC");
+        }
+
+        EV << "MCC " << getIndex() << " iaTime " << iaTime << " Initialized" << endl;
+        EV << antenna->getInfo() << endl;
     }
-
-    EV << "MCC " << getIndex() << " Antenna " << antenna->getGain() << endl;
-
-    EV << "MCC " << getIndex() << " iaTime " << iaTime << " Initialized" << endl;
 }
 
 void MissionControlCenter::handleMessage(cMessage *msg)
@@ -46,9 +48,9 @@ void MissionControlCenter::handleMessage(cMessage *msg)
 
         auto mobility = getSubmodule("mobility");
         if (mobility) {
-            auto lutMobility = dynamic_cast<LUTMotionMobility*>(mobility);
-            if (lutMobility) {
-                targetTag->setPosition(lutMobility->getRealWorldPosition());
+            auto groundStationMobility = dynamic_cast<GroundStationMobility*>(mobility);
+            if (groundStationMobility) {
+                targetTag->setPosition(groundStationMobility->getRealWorldPosition());
             } else {
                 EV_ERROR << "Mobility submodule is not of type LUTMotionMobility" << endl;
             }

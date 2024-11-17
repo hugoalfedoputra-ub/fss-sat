@@ -1,9 +1,9 @@
-file 5203 1731818458                                            
+file 5203 1731834457                                            
 version 3
-run SCPCConfig-0-20241117-05:49:48-18136
+run SCPCConfig-0-20241117-16:07:11-19112
 attr configname SCPCConfig
-attr datetime 20241117-05:49:48
-attr datetimef 20241117-054948
+attr datetime 20241117-16:07:11
+attr datetimef 20241117-160711
 attr experiment SCPCConfig
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -11,7 +11,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network GroundStations
-attr processid 18136
+attr processid 19112
 attr repetition 0
 attr replication #0
 attr resultdir results

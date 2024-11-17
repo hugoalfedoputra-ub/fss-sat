@@ -11,8 +11,6 @@ void GEOSatelliteCommunications::initialize()
     cBandDownlinkFrequency = par("cBandDownlinkFrequency");
     cBandUplinkFrequency = par("cBandUplinkFrequency");
 
-    antenna = check_and_cast<GEOSatelliteAntenna*>(getParentModule()->getSubmodule("antenna"));
-
     // Register the broadcast signal
     broadcastSignal = registerSignal("broadcastPackets");
 

@@ -15,7 +15,6 @@ class GEOSatelliteCommunications : public cSimpleModule
     // C-band properties
     double cBandDownlinkFrequency; // in Hz
     double cBandUplinkFrequency;   // in Hz
-    GEOSatelliteAntenna *antenna; // Pointer to the antenna module
     simsignal_t broadcastSignal;
     std::queue<Packet*> packetQueue; // Queue for storing packets
     cMessage *queueProcessingEvent;
@@ -25,6 +24,15 @@ class GEOSatelliteCommunications : public cSimpleModule
     virtual void initialize() override;
     virtual void handleMessage(cMessage *msg) override;
     void processQueue();
+  public:
+    virtual std::string getInfo() const {
+        std::stringstream out;
+        out << "C-Band Downlink Frequency: " << cBandDownlinkFrequency << " Hz, ";
+        out << "C-Band Uplink Frequency: " << cBandUplinkFrequency << " Hz, ";
+        out << "Queue Size: " << packetQueue.size();
+        return out.str();
+    }
 };
+
 
 #endif

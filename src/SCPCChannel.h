@@ -7,7 +7,6 @@
 #include <set>
 #include "GEOSatelliteAntenna.h"
 #include "Tags.h"
-
 using namespace omnetpp;
 
 class SCPCChannel : public cDatarateChannel
@@ -19,15 +18,20 @@ protected:
     double datarate;
     std::string modulation;
     static std::set<double> activeCarriers;
-    GEOSatelliteAntenna antenna;
+//    GEOSatelliteAntenna *txAntenna;
+//    GEOSatelliteAntenna *rxAntenna;
 
-    virtual void initialize() override;
+    virtual void initialize(int) override;
+    virtual int numInitStages() const override { return 3; }
     virtual cChannel::Result processMessage(cMessage *msg, const SendOptions& options, simtime_t t) override;
     virtual void finish() override;
 
 public:
     SCPCChannel();
     virtual ~SCPCChannel();
+//    void setTxAntenna(GEOSatelliteAntenna* antenna) { txAntenna = antenna; }
+//    void setRxAntenna(GEOSatelliteAntenna* antenna) { rxAntenna = antenna; }
+
     double getCarrierFrequency() const { return carrierFrequency; }
 };
 

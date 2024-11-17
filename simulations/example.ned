@@ -4,14 +4,14 @@ import inet.mobility.static.StationaryMobility;
 import inet.mobility.contract.IMobility;
 import inet.networklayer.common.NetworkInterface;
 
-simple LUTMotionMobility extends StationaryMobility
+simple GroundStationMobility extends StationaryMobility
 {
     parameters:
         double latitude;
         double longitude;
         initFromDisplayString = false;
         updateFromDisplayString = false;
-        @class(LUTMotionMobility);
+        @class(GroundStationMobility);
 }
 
 simple GEOSatelliteAntenna
@@ -53,6 +53,7 @@ module GEOSatellite
     parameters:
         int numOfMCCs;
         @display("i=satellit_blue");
+        @class(GEOSatellite);
         
     gates:
         input uplinkIn[numOfMCCs]; 
@@ -83,7 +84,7 @@ module MissionControlCenter
 {
     parameters:
         string cityName = default("");
-        string mobilityType = default("LUTMotionMobility");
+        string mobilityType = default("GroundStationMobility");
         double iaTime @unit(s);
         @class(MissionControlCenter);
         @display("t=$cityName");
@@ -92,7 +93,7 @@ module MissionControlCenter
         output satOut;
 
     submodules:
-        mobility: LUTMotionMobility {
+        mobility: GroundStationMobility {
             parameters:
                 @display("p=194,103");
         }
