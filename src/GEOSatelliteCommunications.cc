@@ -8,6 +8,7 @@ using namespace omnetpp;
 
 namespace { // Anonymous namespace
     int packetsLost = 0;
+    int packetsSent = 0;
 }
 
 Define_Module(GEOSatelliteCommunications);
@@ -25,6 +26,7 @@ void GEOSatelliteCommunications::initialize()
     queueProcessingEvent = new cMessage("processQueue");
 
     packetsLost = 0;
+    packetsSent = 0;
 
     configName = par("configName").stdstringValue();
     EV << "GEOSatelliteCommunications initialized with config: " << configName << endl;
@@ -62,6 +64,7 @@ void GEOSatelliteCommunications::handleMessage(cMessage *msg)
             delete msg;
             return;
         }
+        packetsSent++;
 
         double eirp_dBm = powerTag->getEIRP_dBm();
         double fspl_dB = powerTag->getFSPL_dB(); // Get FSPL from the tag
@@ -154,6 +157,7 @@ void GEOSatelliteCommunications::finish()
     std::ofstream outputFile(filename.c_str());
 
     if (outputFile.is_open()) {
+        outputFile << "Satellite: Packets Sent = " << packetsSent << std::endl;
         outputFile << "Satellite: Packets Lost = " << packetsLost << std::endl;
         outputFile.close();
     } else {

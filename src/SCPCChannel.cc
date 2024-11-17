@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <mutex>
+#include <random>
 
 Define_Channel(SCPCChannel);
 std::set<double> SCPCChannel::activeCarriers;
@@ -20,6 +21,7 @@ using namespace inet;
 namespace { // Anonymous namespace to keep these variables file-local
     std::ofstream outputFile; // Single global file stream
     std::mutex fileMutex; // Mutex for file access synchronization
+    std::mt19937 rng; // Random number generator
 }
 
 SCPCChannel::SCPCChannel() {}  // No implementation here
@@ -40,6 +42,7 @@ void SCPCChannel::initialize(int stage)
         datarate = par("datarate").doubleValue();
         modulation = par("modulation").stdstringValue();
         weatherModel = par("weatherModel").doubleValue();
+        useDynamicWeather = par("useDynamicWeather").boolValue();
 
         // Check for carrier frequency collision
         if (activeCarriers.find(carrierFrequency) != activeCarriers.end()) {
@@ -94,9 +97,25 @@ void SCPCChannel::initialize(int stage)
         EV << "    Bandwidth: " << bandwidth << " Hz" << endl;
         EV << "    Symbol Rate: " << symbolRate << " Hz" << endl;
         EV << "    Modulation: " << modulation << endl;
-        EV << "    Weather Model: " << weatherModel << endl;
+        EV << "    Weather Model: " << weatherModel << " is it dynamic? " << useDynamicWeather << endl;
         EV << "    Source Antenna: " << srcAntenna->getInfo() << endl;
         EV << "    Destination Antenna: " << dstAntenna->getInfo() << endl;
+
+        if (useDynamicWeather) {
+            EV << "Using dynamic weather... " << endl;
+            // Initialize weather models for each MCC (randomly between 0 and 100 mm)
+            int numMCCs = getSimulation()->getSystemModule()->par("numOfMCCs").intValue();
+            weatherModels.resize(numMCCs);
+            rng.seed(time(0)); // Seed RNG (you might want a more robust seeding method)
+            std::uniform_real_distribution<double> dist(-2.5, 5.0);
+            for (int i = 0; i < numMCCs; ++i) {
+                weatherModels[i] += dist(rng);
+                if (weatherModels[i] < 0.0){
+                    weatherModels[i] = 0.0;
+                }
+                EV << "Weather model at: " << i << " = " << weatherModels[i] << endl;
+            }
+        }
     }
 }
 
@@ -136,7 +155,33 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
            double fspl_dB = calculateFreeSpacePathLoss(txPosition, rxPosition, carrierFrequency);
 
            // Weather model usage:
-           double atmosphericLoss_dB = calculateAtmosphericLoss(carrierFrequency, weatherModel);
+           double atmosphericLoss_dB = 0.0;
+           if (useDynamicWeather) {
+               atmosphericLoss_dB = calculateAtmosphericLoss(carrierFrequency, packet->getTag<TargetTag>()->getTarget());
+
+               int numMCCs = getSimulation()->getSystemModule()->par("numOfMCCs").intValue();
+               rng.seed(time(0));
+               // Randomly change weather after calculating atmospheric loss
+               std::uniform_real_distribution<double> weatherChange(-1.0, 1.0);
+               if (weatherChange(rng) > 0.0) { // to be or not to be
+                   EV << endl << "WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!!"
+                           << endl << "Updating weather..." << endl;
+                   std::uniform_real_distribution<double> dist(-25.0, 25.0);
+                   for (int i = 0; i < numMCCs; ++i) {
+                       weatherModels[i] += dist(rng);
+                       if (weatherModels[i] < 0.0){
+                           weatherModels[i] = 0.0;
+                       }
+                       if (weatherModels[i] > 300.1){
+                           weatherModels[i] /= 3.0;
+                       }
+                       EV << "Weather model at: " << i << " = " << weatherModels[i] << endl;
+                   }
+                   EV << endl;
+               }
+           } else {
+               atmosphericLoss_dB = calculateAtmosphericLoss(carrierFrequency, weatherModel);
+           }
 
            powerTag->setFSPL_dB(fspl_dB + atmosphericLoss_dB); // Store FSPL in the tag
 

@@ -13,6 +13,7 @@ using namespace inet::math;
 
 namespace { // Anonymous namespace
     int packetsLost[5]; // Array to store packet loss for each MCC
+    int packetsSent[5];
     std::mutex fileMutex;  // Mutex for file access synchronization
     std::ofstream outputFile;
 }
@@ -35,6 +36,7 @@ void MissionControlCenter::initialize(int stage)
         }
 
         packetsLost[getIndex()] = 0; // Initialize packet loss for this MCC
+        packetsSent[getIndex()] = 1;
 
         configName = par("configName").stdstringValue();
 
@@ -105,6 +107,7 @@ void MissionControlCenter::handleMessage(cMessage *msg)
         EV << "MCC " << getIndex() << " sending packet to MCC " << targetMCC << endl;
 
         send(packet, "satOut");
+        packetsSent[getIndex()]++;
 
         scheduleAt(simTime() + iaTime, new cMessage("sendMsg"));
         delete msg;
@@ -155,9 +158,11 @@ void MissionControlCenter::finish()
     fileMutex.lock(); // Acquire the lock
 
     if (outputFile.is_open()) {
+        outputFile << "MCC " << getIndex() << ": Packets Sent = " << packetsSent[getIndex()] << std::endl;
         outputFile << "MCC " << getIndex() << ": Packets Lost = " << packetsLost[getIndex()] << std::endl;
+
         if (getIndex() == (getParentModule()->par("numOfMCCs").intValue()-1)) { //Last MCC to close the file
-          outputFile.close();
+            outputFile.close();
         }
     } else {
         EV_ERROR << "Error: Output file is not open in finish()!" << std::endl;
