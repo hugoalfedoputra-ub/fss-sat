@@ -1,8 +1,8 @@
 version 3
-run SCPCConfig-0-20241117-21:00:18-23112
+run SCPCConfig-0-20241117-21:21:27-18640
 attr configname SCPCConfig
-attr datetime 20241117-21:00:18
-attr datetimef 20241117-210018
+attr datetime 20241117-21:21:27
+attr datetimef 20241117-212127
 attr experiment SCPCConfig
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -10,7 +10,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network GroundStations
-attr processid 23112
+attr processid 18640
 attr repetition 0
 attr replication #0
 attr resultdir results
@@ -65,8 +65,8 @@ config **.mcc[*].antenna.gain 80dB
 config **.mcc[*].antenna.polarization "\"circular\""
 config **.mcc[*].antenna.pointingAccuracy 0.1deg
 config **.mcc[*].antenna.power 18000W
-config **.satellite[0].communications.noiseFloor -120dBm
-config **.mcc[*].noiseFloor -120dBm
+config **.satellite[0].communications.noiseFloor -100dBm
+config **.mcc[*].noiseFloor -100dBm
 config **.mcc[0].mobility.latitude -7.9540
 config **.mcc[0].mobility.longitude 112.6145
 config **.mcc[0].cityName "\"FILKOM UB\""
