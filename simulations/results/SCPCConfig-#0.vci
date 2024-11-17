@@ -1,9 +1,9 @@
-file 5203 1731834457                                            
+                                                                
 version 3
-run SCPCConfig-0-20241117-16:07:11-19112
+run SCPCConfig-0-20241117-19:59:49-16896
 attr configname SCPCConfig
-attr datetime 20241117-16:07:11
-attr datetimef 20241117-160711
+attr datetime 20241117-19:59:49
+attr datetimef 20241117-195949
 attr experiment SCPCConfig
 attr inifile omnetpp.ini
 attr iterationvars ""
@@ -11,7 +11,7 @@ attr iterationvarsd ""
 attr iterationvarsf ""
 attr measurement ""
 attr network GroundStations
-attr processid 19112
+attr processid 16896
 attr repetition 0
 attr replication #0
 attr resultdir results
@@ -31,6 +31,10 @@ config *.satellite[0].downlinkOut[1].channel.carrierFrequency 4.03GHz
 config *.satellite[0].downlinkOut[2].channel.carrierFrequency 4.06GHz
 config *.satellite[0].downlinkOut[3].channel.carrierFrequency 4.09GHz
 config *.satellite[0].downlinkOut[4].channel.carrierFrequency 4.12GHz
+config *.satellite[0].downlinkOut[*].weatherModel 0.0
+config **.satOut.weatherModel 0.0
+config **.satOut.processingDelay 10us
+config *.satellite[0].downlinkOut[*].processingDelay 10us
 config **.mcc[*].iaTime 0.1s
 config **.satOut.bandwidth 36MHz
 config **.satOut.symbolRate 27MHz
@@ -47,21 +51,23 @@ config **.constraintAreaMinZ 0m
 config **.constraintAreaMaxZ 0m
 config **.numOfSatellites 1
 config **.satellite[0].mobility.longitude "(112.6145 + 104.0529 + 136.9018 + 105.4927 + 100.5926) / 5"
-config **.satellite[0].antenna.diameter 3m
+config **.satellite[0].antenna.diameter 30m
 config **.satellite[0].antenna.beamWidth 1.2deg
-config **.satellite[0].antenna.gain 35dB
+config **.satellite[0].antenna.gain 70dB
 config **.satellite[0].antenna.polarization "\"circular\""
 config **.satellite[0].antenna.pointingAccuracy 0.1deg
-config **.satellite[0].antenna.power 100W
+config **.satellite[0].antenna.power 18000W
 config **.satellite[0].communications.cBandDownlinkFrequency 4GHz
 config **.satellite[0].communications.cBandUplinkFrequency 6GHz
 config **.numOfMCCs 5
 config **.mcc[*].antenna.diameter 30m
 config **.mcc[*].antenna.beamWidth 1.2deg
-config **.mcc[*].antenna.gain 70dB
+config **.mcc[*].antenna.gain 80dB
 config **.mcc[*].antenna.polarization "\"circular\""
 config **.mcc[*].antenna.pointingAccuracy 0.1deg
 config **.mcc[*].antenna.power 3000W
+config **.satellite[0].communications.noiseFloor -120dBm
+config **.mcc[*].noiseFloor -120dBm
 config **.mcc[0].mobility.latitude -7.9540
 config **.mcc[0].mobility.longitude 112.6145
 config **.mcc[0].cityName "\"FILKOM UB\""
@@ -119,14 +125,13 @@ vector 9 GroundStations.satellite[0].downlinkOut[4].channel activeCarriers:vecto
 attr recordingmode vector
 attr source carrierId
 attr title "Number of active carriers"
-0	5011 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-1	5030 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-2	5049 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-3	5068 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-4	5087 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-5	5106 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-6	5125 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-7	5144 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-8	5163 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-9	5182 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
-
+0	5297 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+1	5316 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+2	5335 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+3	5354 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+4	5373 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+5	5392 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+6	5411 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+7	5430 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+8	5449 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18
+9	5468 19 0 0 0 0 1 -2147483648 -2147483648 -2147483648 4.6116860184274e+18

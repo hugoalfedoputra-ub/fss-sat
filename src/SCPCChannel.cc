@@ -5,7 +5,9 @@
 #include "MissionControlCenter.h"
 #include "GEOSatelliteCommunications.h"
 #include "GEOSatelliteMobility.h"
+#include "GEOSatellite.h"
 #include "GEOUtils.h"
+#include "Tags.h"
 
 Define_Channel(SCPCChannel);
 std::set<double> SCPCChannel::activeCarriers;
@@ -30,6 +32,7 @@ void SCPCChannel::initialize(int stage)
         symbolRate = par("symbolRate").doubleValue();
         datarate = par("datarate").doubleValue();
         modulation = par("modulation").stdstringValue();
+        weatherModel = par("weatherModel").doubleValue();
 
         // Check for carrier frequency collision
         if (activeCarriers.find(carrierFrequency) != activeCarriers.end()) {
@@ -66,6 +69,7 @@ void SCPCChannel::initialize(int stage)
         EV << "    Bandwidth: " << bandwidth << " Hz" << endl;
         EV << "    Symbol Rate: " << symbolRate << " Hz" << endl;
         EV << "    Modulation: " << modulation << endl;
+        EV << "    Weather Model: " << weatherModel << endl;
         EV << "    Source Antenna: " << srcAntenna->getInfo() << endl;
         EV << "    Destination Antenna: " << dstAntenna->getInfo() << endl;
     }
@@ -76,48 +80,77 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
     cChannel::Result result;
 
     if (msg->isPacket()) {
-        auto packet = check_and_cast<Packet *>(msg);
+        auto packet = check_and_cast<Packet*>(msg);
+        auto powerTag = packet->addTagIfAbsent<PowerTag>();
 
-        if (!packet->hasTag<TargetTag>()) {  // Check if tag is missing
-            throw cRuntimeError("Packet missing TargetPositionTag! Cannot calculate path loss.");
-        }
+        // Get source and destination modules and their positions for FSPL calculation
+        cModule *txModule = getSourceGate()->getOwnerModule();
+        cModule *rxModule = getSourceGate()->getNextGate()->getOwnerModule(); // Get the next gate's owner
 
-        if (packet->hasTag<TargetTag>()) {
-            const Coord& targetPosition = packet->getTag<TargetTag>()->getPosition();
+        Coord txPosition, rxPosition;
 
-            EV << "FROM " << targetPosition << endl;
+        if (dynamic_cast<MissionControlCenter*>(txModule)) { // Uplink
+            txPosition = check_and_cast<GroundStationMobility*>(txModule->getSubmodule("mobility"))->getRealWorldPosition();
 
-            auto mobilityModule = dynamic_cast<GEOSatelliteMobility*>(getSimulation()->getModuleByPath("GroundStations.satellite[0].mobility"));
-            if (!mobilityModule) {
-                 throw cRuntimeError("Could not find GEOSatelliteMobility module.");
-            }
-            Coord satPosition = mobilityModule->getRealWorldPosition();
+            rxPosition = check_and_cast<GEOSatelliteMobility*>(rxModule->getSubmodule("mobility"))->getRealWorldPosition();
+             EV << "UPLINK\n";
 
-            EV << "Sat Pos : " << satPosition << endl;
-
-            // Calculate Free Space Path Loss using the function from GEOUtils
-            try {
-                EV << "Calculating FSPL for Freq: " << carrierFrequency << " Hz";
-                double pathloss_dB = calculateFreeSpacePathLoss(satPosition, targetPosition, carrierFrequency);
-                EV << "Path loss to target: " << pathloss_dB << " dB\n";
-
-                auto powerTag = packet->addTagIfAbsent<PowerTag>();
-                double power_dBm = powerTag->getPower_dBm(); // Get initial power (if any) or use a default value if not set.
-                power_dBm -= pathloss_dB;                     // Apply path loss
-                powerTag->setPower_dBm(power_dBm);            // Update power tag
-
-            } catch (const std::exception& e) {
-                EV_ERROR << "Error calculating path loss: " << e.what() << endl;
-                // Handle the error appropriately, e.g., drop the packet.
-                // result.discard = true;  // Example: Discard the packet
-                throw; // Re-throw the exception to let higher levels handle it
-               return result;
-            }
-
-
+        } else if (dynamic_cast<GEOSatellite*>(txModule)) { // Downlink
+            txPosition = check_and_cast<GEOSatelliteMobility*>(txModule->getSubmodule("mobility"))->getRealWorldPosition();
+            rxPosition = packet->getTag<TargetTag>()->getPosition();
+            EV << "DOWNLINK\n";
         } else {
-            EV_WARN << "Packet does not have TargetPositionTag, cannot calculate path loss!\n";
+            throw cRuntimeError("Unsupported module type for SCPCChannel");
         }
+
+        EV << "TX module: " << txModule->getFullName() << " @ " << txPosition << endl;
+        EV << "RX module: " << rxModule->getFullName() << " @ " << rxPosition << endl;
+
+        // Step 3: Calculate and apply Free Space Path Loss
+        try {
+           double fspl_dB = calculateFreeSpacePathLoss(txPosition, rxPosition, carrierFrequency);
+
+           // Weather model usage:
+           double atmosphericLoss_dB = calculateAtmosphericLoss(carrierFrequency, weatherModel);
+
+           powerTag->setFSPL_dB(fspl_dB + atmosphericLoss_dB); // Store FSPL in the tag
+
+           EV << "Atmospheric Loss: " << atmosphericLoss_dB << " dB\n";
+
+            double power_dBm;
+            if (dynamic_cast<MissionControlCenter*>(txModule)) {
+                power_dBm = powerTag->getEIRP_dBm(); // Use EIRP for uplink
+            } else {
+                power_dBm = powerTag->getTransmitPower_dBm(); //For Downlink we should have transmit power (Pt) by satellite. You'll need to make sure the satellite sets the transmit power in the PowerTag.
+            }
+
+            power_dBm -= fspl_dB;
+            power_dBm -= atmosphericLoss_dB;
+            powerTag->setReceivedPower_dBm(power_dBm);
+
+            EV << "Step 3 & 7: FSPL: " << fspl_dB << " dB\n";
+            EV << "Step 3 & 7: Received Power (after FSPL and Atmospheric Loss): " << power_dBm << " dBm\n";
+
+        } catch (const std::exception& e) {
+            EV_ERROR << "Error calculating path loss: " << e.what() << endl;
+            // Handle the error appropriately, e.g., drop the packet.
+            // result.discard = true;  // Example: Discard the packet
+            throw; // Re-throw the exception to let higher levels handle it
+            return result;
+        }
+
+        // Latency Calculation:
+        inet::simtime_t propagationDelay = (txPosition.distance(rxPosition)) / 299792458.0; // divided by the speed of light
+        inet::simtime_t processingDelay = par("processingDelay").doubleValue(); // Add processing delay parameter to your channel
+        inet::simtime_t totalLatency = propagationDelay + processingDelay;
+
+        // Store latency in the packet tag for logging at the receiver
+        auto latencyTag = packet->addTagIfAbsent<LatencyTag>(); // Assumes you have a LatencyTag defined
+        latencyTag->setLatency(totalLatency);
+
+        EV << "Propagation Delay: " << propagationDelay << " s\n";
+        EV << "Processing Delay: " << processingDelay << "s\n";
+        EV << "Total Latency: " << totalLatency << " s\n";
 
         auto tag = packet->addTagIfAbsent<CarrierTag>();
         tag->setCarrierFrequency(carrierFrequency);

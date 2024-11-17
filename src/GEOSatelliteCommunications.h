@@ -15,6 +15,7 @@ class GEOSatelliteCommunications : public cSimpleModule
     // C-band properties
     double cBandDownlinkFrequency; // in Hz
     double cBandUplinkFrequency;   // in Hz
+    double noiseFloor_dBm;
     simsignal_t broadcastSignal;
     std::queue<Packet*> packetQueue; // Queue for storing packets
     cMessage *queueProcessingEvent;

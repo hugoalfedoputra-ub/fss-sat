@@ -18,6 +18,7 @@ protected:
     simtime_t iaTime;
     std::mt19937 rng;
     GEOSatelliteAntenna *antenna;
+    double noiseFloor_dBm;
 
     virtual void initialize(int) override;
     virtual int numInitStages() const override { return 2; }

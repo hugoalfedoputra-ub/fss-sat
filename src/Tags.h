@@ -8,20 +8,50 @@
 class PowerTag : public inet::TagBase
 {
 protected:
-    double power_dBm;
+    double transmitPower_dBm;  // Transmit Power (Pt) in dBm
+    double transmitGain_dBi;   // Transmit Antenna Gain (Gt) in dBi
+    double eirp_dBm;          // Effective Isotropic Radiated Power (EIRP) in dBm
+    double receiveGain_dBi;   // Receive Antenna Gain (Gr) in dBi
+    double receivedPower_dBm; // Received Power (Pr) in dBm
+    double fspl_dB;           // Free Space Path Loss (FSPL) in dB
 
 public:
-    PowerTag() : power_dBm(0.0) {}
-    PowerTag(double p) : power_dBm(p) {}
+    PowerTag() : transmitPower_dBm(0.0), transmitGain_dBi(0.0), eirp_dBm(0.0),
+                     receiveGain_dBi(0.0), receivedPower_dBm(0.0), fspl_dB(0.0) {}
+
     virtual const char* getName() const override { return "PowerTag"; }
-    virtual std::string str() const override { return std::to_string(power_dBm) + " dBm"; }
+
+    virtual std::string str() const override {
+        std::stringstream ss;
+        ss << "Pt: " << transmitPower_dBm << " dBm, Gt: " << transmitGain_dBi << " dBi, "
+           << "EIRP: " << eirp_dBm << " dBm, Gr: " << receiveGain_dBi << " dBi, "
+           << "Pr: " << receivedPower_dBm << " dBm, FSPL: " << fspl_dB << " dB";
+        return ss.str();
+    }
+
     virtual PowerTag *dup() const override { return new PowerTag(*this); }
 
-    double getPower_dBm() const { return power_dBm; }
-    void setPower_dBm(double p) { power_dBm = p; }
+    // Getters and setters for each parameter
+    double getTransmitPower_dBm() const { return transmitPower_dBm; }
+    void setTransmitPower_dBm(double p) { transmitPower_dBm = p; }
 
-    double getPower_mW() const { return pow(10.0, power_dBm / 10.0); }  // Conversion to mW
-    void setPower_mW(double p) { power_dBm = 10.0 * log10(p); }        // Conversion from mW
+    double getTransmitGain_dBi() const { return transmitGain_dBi; }
+    void setTransmitGain_dBi(double g) { transmitGain_dBi = g; }
+
+    double getEIRP_dBm() const { return eirp_dBm; }
+    void setEIRP_dBm(double e) { eirp_dBm = e; }
+
+    double getReceiveGain_dBi() const { return receiveGain_dBi; }
+    void setReceiveGain_dBi(double g) { receiveGain_dBi = g; }
+
+    double getReceivedPower_dBm() const { return receivedPower_dBm; }
+    void setReceivedPower_dBm(double p) { receivedPower_dBm = p; }
+
+    double getFSPL_dB() const { return fspl_dB; }
+    void setFSPL_dB(double f) { fspl_dB = f; }
+
+    // Helper function to calculate EIRP (if not set directly)
+    void calculateEIRP() { eirp_dBm = transmitPower_dBm + transmitGain_dBi; }
 };
 
 
@@ -60,6 +90,26 @@ public:
     virtual double getCarrierFrequency() const { return carrierFrequency; }
     virtual const char* getName() const override { return "CarrierTag"; }
     virtual std::string str() const override { return ""; }
+};
+
+class LatencyTag : public inet::TagBase
+{
+private:
+    inet::simtime_t latency;
+
+public:
+    LatencyTag() : latency(0) {}
+
+    virtual const char* getName() const override { return "LatencyTag"; }
+    virtual std::string str() const override {
+        std::stringstream ss;
+        ss << "Latency: " << latency;
+        return ss.str();
+    }
+    virtual LatencyTag* dup() const override { return new LatencyTag(*this); }
+
+    void setLatency(inet::simtime_t l) { latency = l; }
+    inet::simtime_t getLatency() const { return latency; }
 };
 
 #endif

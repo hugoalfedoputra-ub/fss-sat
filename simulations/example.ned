@@ -33,7 +33,7 @@ simple GEOSatelliteCommunications
         int numOfMCCs;
         double cBandDownlinkFrequency @unit(Hz);
         double cBandUplinkFrequency @unit(Hz);
-                
+		double noiseFloor @unit(dBm);
         @display("i=block/cogwheel");
     gates:
         input uplinkIn[numOfMCCs];
@@ -88,6 +88,7 @@ module MissionControlCenter
         double iaTime @unit(s);
         @class(MissionControlCenter);
         @display("t=$cityName");
+        double noiseFloor @unit(dBm); 
     gates:
         input satIn;
         output satOut;
@@ -138,6 +139,8 @@ channel SCPCLink extends ned.DatarateChannel
         double symbolRate @unit(Hz) = default(27MHz);
         string modulation = default("QPSK");
         datarate = default(100Mbps);
+        double weatherModel = default(0.0);
+        double processingDelay = default(0.01); // 10 us
         double bitErrorRate = default(0);
         double packetErrorRate = default(0);
         @signal[carrierId](type=long);
