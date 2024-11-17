@@ -6,12 +6,15 @@
 #include "Tags.h"
 #include <random>
 #include <fstream>
+#include <mutex>
 
 using namespace inet;
 using namespace inet::math;
 
-namespace { // Anonymous namespace to keep variables local to this file
-    int packetsLost = 0;
+namespace { // Anonymous namespace
+    int packetsLost[5]; // Array to store packet loss for each MCC
+    std::mutex fileMutex;  // Mutex for file access synchronization
+    std::ofstream outputFile;
 }
 
 Define_Module(MissionControlCenter);
@@ -31,9 +34,21 @@ void MissionControlCenter::initialize(int stage)
             throw cRuntimeError("Antenna module not found in MCC");
         }
 
-        packetsLost = 0;
+        packetsLost[getIndex()] = 0; // Initialize packet loss for this MCC
 
         configName = par("configName").stdstringValue();
+
+        // Open the output file for writing ONLY ONCE and in initialize()
+        if (getIndex() == 0) { // Only MCC 0 opens/creates the file
+            fileMutex.lock(); // Acquire the lock
+            std::string filename = configName + "_mcc_packet_lost.txt";
+            outputFile.open(filename.c_str());
+            if (!outputFile.is_open()) {
+                throw cRuntimeError("Error opening output file: %s", filename.c_str());
+            }
+            fileMutex.unlock(); // Release the lock
+        }
+
         EV << "MissionControlCenter initialized with config: " << configName << endl;
 
         noiseFloor_dBm = par("noiseFloor").doubleValue();
@@ -110,7 +125,7 @@ void MissionControlCenter::handleMessage(cMessage *msg)
 
             if (old_power_dBm < noiseFloor_dBm) {
                 EV << "Downlink Signal below noise floor (" << noiseFloor_dBm << " dBm), PACKET IS LOST AT MCC.\n";
-                packetsLost++;
+                packetsLost[getIndex()]++;
                 delete receivedPacket;  // Delete the packet
                 return;
             }
@@ -136,17 +151,19 @@ void MissionControlCenter::handleMessage(cMessage *msg)
 }
 void MissionControlCenter::finish()
 {
-    // Write packet loss statistics to file
-    std::ofstream outputFile;
-    std::string filename = configName + "_mcc_packet_lost.txt";
-    outputFile.open(filename.c_str());
+    // Write packet loss statistics to the common file with mutex
+    fileMutex.lock(); // Acquire the lock
 
     if (outputFile.is_open()) {
-        outputFile << "MCC " << getIndex() << ": Packets Lost = " << packetsLost << std::endl;
-        outputFile.close();
+        outputFile << "MCC " << getIndex() << ": Packets Lost = " << packetsLost[getIndex()] << std::endl;
+        if (getIndex() == (getParentModule()->par("numOfMCCs").intValue()-1)) { //Last MCC to close the file
+          outputFile.close();
+        }
     } else {
-        EV_ERROR << "Error opening output file: " << filename << std::endl;
+        EV_ERROR << "Error: Output file is not open in finish()!" << std::endl;
     }
+
+    fileMutex.unlock(); // Release the lock outside the if condition
 
     EV << "MCC " << getIndex() << " finished." << endl;
 }
