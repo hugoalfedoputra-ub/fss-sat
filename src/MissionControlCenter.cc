@@ -16,6 +16,10 @@ namespace { // Anonymous namespace
     int packetsSent[5];
     std::mutex fileMutex;  // Mutex for file access synchronization
     std::ofstream outputFile;
+    std::ofstream weatherOutputFile; // New output file stream for weather data
+    std::mutex weatherFileMutex;     // Mutex for weather file access
+    std::ofstream packetLossOutputFile; // New output file stream
+    std::mutex packetLossFileMutex;     // Mutex for new file
 }
 
 Define_Module(MissionControlCenter);
@@ -38,9 +42,27 @@ void MissionControlCenter::initialize(int stage)
         packetsLost[getIndex()] = 0; // Initialize packet loss for this MCC
         packetsSent[getIndex()] = 1;
 
+        useSpecDynamicWeather = par("useSpecDynamicWeather").boolValue();
+        specWeatherModel = par("specWeatherModel").doubleValue();
+
+        if (useSpecDynamicWeather) {
+            EV << "Using dynamic weather... " << endl;
+            // Initialize weather models for each MCC
+            std::uniform_real_distribution<double> dist(-2.5, 5.0);
+            specWeatherModel = 0.0; // Resetting it just in case
+            specWeatherModel += dist(rng);
+            if (specWeatherModel < 0.0){
+                specWeatherModel = 0.0;
+            }
+            EV << "Weather model at MCC " << getIndex() << " = " << specWeatherModel << endl;
+        } else {
+//            specWeatherModel = 0.0;
+            // Do nothing and let SCPC handle it
+        }
+
         configName = par("configName").stdstringValue();
 
-        // Open the output file for writing ONLY ONCE and in initialize()
+        // Open the packet loss output file for writing ONLY ONCE and in initialize()
         if (getIndex() == 0) { // Only MCC 0 opens/creates the file
             fileMutex.lock(); // Acquire the lock
             std::string filename = configName + "_mcc_packet_lost.txt";
@@ -51,11 +73,37 @@ void MissionControlCenter::initialize(int stage)
             fileMutex.unlock(); // Release the lock
         }
 
+        // Open the weather output file ONLY ONCE and in initialize()
+        if (getIndex() == 0) { // Only MCC 0 opens/creates the file
+            weatherFileMutex.lock();
+            std::string weatherFilename = configName + "_mcc_weather_data.txt";
+            weatherOutputFile.open(weatherFilename.c_str());
+            if (!weatherOutputFile.is_open()) {
+                throw cRuntimeError("Error opening weather output file: %s", weatherFilename.c_str());
+            }
+            // Write header to the weather file
+            weatherOutputFile << "simTime,MCCIndex,specWeatherModel" << std::endl;
+            weatherFileMutex.unlock();
+        }
+
+        // Open the packet loss output file ONLY ONCE and in initialize()
+        packetLossFileMutex.lock(); // Corrected: Lock before checking and opening
+        if (!packetLossOutputFile.is_open()) {  // Check if already open
+            std::string packetLossFilename = configName + "_mcc_packet_loss_details.txt";
+            packetLossOutputFile.open(packetLossFilename.c_str());
+            if (packetLossOutputFile.is_open()) {
+                packetLossOutputFile << "simTime,MCC_idx,packet_is_loss" << std::endl;
+            } else {
+                throw cRuntimeError("Error opening packet loss output file: %s", packetLossFilename.c_str());
+            }
+        }
+        packetLossFileMutex.unlock(); // Unlock after opening
+
         EV << "MissionControlCenter initialized with config: " << configName << endl;
 
         noiseFloor_dBm = par("noiseFloor").doubleValue();
         EV << "GEOSatelliteCommunications: noiseFloor_dBm = " << noiseFloor_dBm << endl;
-
+        EV << "MCC specific weather model = " << specWeatherModel << "mm of rain" << endl;
         EV << "MCC " << getIndex() << " iaTime " << iaTime << " Initialized" << endl;
         EV << antenna->getInfo() << endl;
     }
@@ -109,6 +157,40 @@ void MissionControlCenter::handleMessage(cMessage *msg)
         send(packet, "satOut");
         packetsSent[getIndex()]++;
 
+        // Write weather data to file BEFORE weather might have changed (this is uplink)
+        weatherFileMutex.lock();
+        if (weatherOutputFile.is_open()) {
+            weatherOutputFile << simTime() << "," << getIndex() << "," << specWeatherModel << std::endl;
+        } else {
+            EV_ERROR << "Weather output file is not open!" << std::endl;
+        }
+        weatherFileMutex.unlock();
+
+        // Chance of changing weather AFTER sending packet
+        std::uniform_real_distribution<double> weatherChange(-1.0, 1.0);
+        if (weatherChange(rng) > 0.33) { // to be or not to be
+            EV << endl << "WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!!"
+                    << endl << "Updating weather..." << endl;
+            std::uniform_real_distribution<double> dist(-25.0, 25.0);
+            specWeatherModel += dist(rng);
+            if (specWeatherModel < 0.0){
+                specWeatherModel = 0.0;
+            }
+            if (specWeatherModel > 300.1){
+                specWeatherModel /= 3.0;
+            }
+            EV << "Weather model at MCC " << getIndex() << " = " << specWeatherModel << " (occurred after sending packet)" << endl;
+        }
+
+        // Write weather data to file AFTER weather might have changed (this is downlink)
+        weatherFileMutex.lock();
+        if (weatherOutputFile.is_open()) {
+            weatherOutputFile << simTime() + 0.00001 << "," << getIndex() << "," << specWeatherModel << std::endl;
+        } else {
+            EV_ERROR << "Weather output file is not open!" << std::endl;
+        }
+        weatherFileMutex.unlock();
+
         scheduleAt(simTime() + iaTime, new cMessage("sendMsg"));
         delete msg;
 
@@ -129,9 +211,25 @@ void MissionControlCenter::handleMessage(cMessage *msg)
             if (old_power_dBm < noiseFloor_dBm) {
                 EV << "Downlink Signal below noise floor (" << noiseFloor_dBm << " dBm), PACKET IS LOST AT MCC.\n";
                 packetsLost[getIndex()]++;
+                // Write packet loss details of lost
+                packetLossFileMutex.lock();
+                if (packetLossOutputFile.is_open()) {
+                    packetLossOutputFile << simTime() << "," << getIndex() << "," << 1 << std::endl;
+                } else {
+                    EV_ERROR << "Packet loss details file not open!" << std::endl;
+                }
+                packetLossFileMutex.unlock();
                 delete receivedPacket;  // Delete the packet
                 return;
             }
+            // Write packet loss details of not lost
+            packetLossFileMutex.lock();
+            if (packetLossOutputFile.is_open()) {
+                packetLossOutputFile << simTime() << "," << getIndex() << "," << 0 << std::endl;
+            } else {
+                EV_ERROR << "Packet loss details file not open!" << std::endl;
+            }
+            packetLossFileMutex.unlock();
 
             double fspl_atmosphere_db = powerTag->getFSPL_dB();
             double receiveGain_dBi = antenna->getGain(); // Earth Station gain
@@ -152,6 +250,7 @@ void MissionControlCenter::handleMessage(cMessage *msg)
         }
     }
 }
+
 void MissionControlCenter::finish()
 {
     // Write packet loss statistics to the common file with mutex
@@ -173,4 +272,18 @@ void MissionControlCenter::finish()
     EV << "MCC " << getIndex() << " finished." << endl;
 }
 
+MissionControlCenter::~MissionControlCenter() {
+    if (getIndex() == 0) { // Only MCC 0 closes the file
+        weatherFileMutex.lock();
+        if (weatherOutputFile.is_open()) {
+            weatherOutputFile.close();
+        }
+        weatherFileMutex.unlock();
+    }
 
+    packetLossFileMutex.lock();
+    if (packetLossOutputFile.is_open()) {
+        packetLossOutputFile.close();
+    }
+    packetLossFileMutex.unlock();
+}

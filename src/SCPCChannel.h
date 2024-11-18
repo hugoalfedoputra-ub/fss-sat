@@ -20,7 +20,7 @@ protected:
     double symbolRate;
     double datarate;
     double weatherModel;
-    bool useDynamicWeather = false;
+    bool useDynamicWeather;
     std::string modulation;
     static std::set<double> activeCarriers;
     std::vector<double> weatherModels; // Vector to store weather model for each MCC
@@ -44,6 +44,8 @@ public:
         // Simplified ITU-R P.676 model
         return 0.002 * pow(weatherModel, 0.85) * pow((frequencyGHz / 1000000000.0), 2.3);
     }
+
+    // Will be deprecated
     double calculateAtmosphericLoss(double frequencyGHz, int targetMCC) {
         // Simplified ITU-R P.676 model
         double weatherModel = weatherModels[targetMCC];

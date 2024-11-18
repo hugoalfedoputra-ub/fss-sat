@@ -88,6 +88,8 @@ module MissionControlCenter
         string cityName = default("");
         string mobilityType = default("GroundStationMobility");
         double iaTime @unit(s);
+        bool useSpecDynamicWeather = default(false);
+        double specWeatherModel = default(-100.0); // temp val so noticable in logs
         @class(MissionControlCenter);
         @display("t=$cityName");
         double noiseFloor @unit(dBm); 
@@ -142,8 +144,8 @@ channel SCPCLink extends ned.DatarateChannel
         double symbolRate @unit(Hz) = default(27MHz);
         string modulation = default("QPSK");
         datarate = default(100Mbps);
-        double weatherModel @unit(mm);
-        bool useDynamicWeather;
+        double weatherModel @unit(mm); 		// May be deprecated
+        bool useDynamicWeather; 			// May be deprecated; if true then do nothing because handled by MCC, if false then keep current implementaiton
         double processingDelay = default(0.01); // 10 us
         double bitErrorRate = default(0);
         double packetErrorRate = default(0);

@@ -29,6 +29,7 @@ class GEOSatelliteCommunications : public cSimpleModule
     virtual void finish() override;
 
   public:
+    virtual ~GEOSatelliteCommunications();
     virtual std::string getInfo() const {
         std::stringstream out;
         out << "C-Band Downlink Frequency: " << cBandDownlinkFrequency << " Hz, ";

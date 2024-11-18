@@ -43,6 +43,7 @@ void SCPCChannel::initialize(int stage)
         modulation = par("modulation").stdstringValue();
         weatherModel = par("weatherModel").doubleValue();
         useDynamicWeather = par("useDynamicWeather").boolValue();
+        useDynamicWeather = false; // Force always false because handled by MCC
 
         // Check for carrier frequency collision
         if (activeCarriers.find(carrierFrequency) != activeCarriers.end()) {
@@ -83,7 +84,7 @@ void SCPCChannel::initialize(int stage)
                 std::string filename = configName + "_scpc_channel_data.txt";
                 outputFile.open(filename.c_str());
                 if (outputFile.is_open()) {
-                    outputFile << "simTime,atmosphericLoss_dB,fspl_dB,power_dBm" << std::endl;
+                    outputFile << "simTime,MCC_idx,atmosphericLoss_dB,fspl_dB,power_dBm,weatherAtMCC" << std::endl;
                 } else {
                     throw cRuntimeError("Error opening output file: %s", filename.c_str());
                 }
@@ -102,19 +103,21 @@ void SCPCChannel::initialize(int stage)
         EV << "    Destination Antenna: " << dstAntenna->getInfo() << endl;
 
         if (useDynamicWeather) {
-            EV << "Using dynamic weather... " << endl;
-            // Initialize weather models for each MCC (randomly between 0 and 100 mm)
-            int numMCCs = getSimulation()->getSystemModule()->par("numOfMCCs").intValue();
-            weatherModels.resize(numMCCs);
-            rng.seed(time(0)); // Seed RNG (you might want a more robust seeding method)
-            std::uniform_real_distribution<double> dist(-2.5, 5.0);
-            for (int i = 0; i < numMCCs; ++i) {
-                weatherModels[i] += dist(rng);
-                if (weatherModels[i] < 0.0){
-                    weatherModels[i] = 0.0;
-                }
-                EV << "Weather model at: " << i << " = " << weatherModels[i] << endl;
-            }
+//            DO NOTHING BECAUSE HANDLED BY MCC
+
+//            EV << "Using dynamic weather... " << endl;
+//            // Initialize weather models for each MCC (randomly between 0 and 100 mm)
+//            int numMCCs = getSimulation()->getSystemModule()->par("numOfMCCs").intValue();
+//            weatherModels.resize(numMCCs);
+//            rng.seed(time(0)); // Seed RNG (you might want a more robust seeding method)
+//            std::uniform_real_distribution<double> dist(-2.5, 5.0);
+//            for (int i = 0; i < numMCCs; ++i) {
+//                weatherModels[i] += dist(rng);
+//                if (weatherModels[i] < 0.0){
+//                    weatherModels[i] = 0.0;
+//                }
+//                EV << "Weather model at: " << i << " = " << weatherModels[i] << endl;
+//            }
         }
     }
 }
@@ -122,6 +125,9 @@ void SCPCChannel::initialize(int stage)
 cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& options, simtime_t t)
 {
     cChannel::Result result;
+    double specWeatherModel = 0.0;
+    bool useSpecDynamicWeather = false;
+    int specWeatherModelIdx = -1;
 
     if (msg->isPacket()) {
         auto packet = check_and_cast<Packet*>(msg);
@@ -135,14 +141,22 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
 
         if (dynamic_cast<MissionControlCenter*>(txModule)) { // Uplink
             txPosition = check_and_cast<GroundStationMobility*>(txModule->getSubmodule("mobility"))->getRealWorldPosition();
-
             rxPosition = check_and_cast<GEOSatelliteMobility*>(rxModule->getSubmodule("mobility"))->getRealWorldPosition();
-             EV << "UPLINK\n";
+            EV << "UPLINK TRANSMISSION\n";
+            specWeatherModel = check_and_cast<MissionControlCenter*>(txModule)->getSpecWeatherModel();
+            useSpecDynamicWeather = check_and_cast<MissionControlCenter*>(txModule)->getUseSpecDynamicWeather();
+            specWeatherModelIdx = check_and_cast<MissionControlCenter*>(txModule)->getIndex();
 
         } else if (dynamic_cast<GEOSatellite*>(txModule)) { // Downlink
             txPosition = check_and_cast<GEOSatelliteMobility*>(txModule->getSubmodule("mobility"))->getRealWorldPosition();
             rxPosition = packet->getTag<TargetTag>()->getPosition();
-            EV << "DOWNLINK\n";
+            EV << "DOWNLINK TRANSMISSION\n";
+            if (dynamic_cast<MissionControlCenter*>(rxModule)) { // Downlink's MCC
+                EV << "DOWNLINK MCC\n";
+                specWeatherModel = check_and_cast<MissionControlCenter*>(rxModule)->getSpecWeatherModel();
+                useSpecDynamicWeather = check_and_cast<MissionControlCenter*>(rxModule)->getUseSpecDynamicWeather();
+                specWeatherModelIdx = check_and_cast<MissionControlCenter*>(rxModule)->getIndex();
+            }
         } else {
             throw cRuntimeError("Unsupported module type for SCPCChannel");
         }
@@ -157,30 +171,40 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
            // Weather model usage:
            double atmosphericLoss_dB = 0.0;
            if (useDynamicWeather) {
-               atmosphericLoss_dB = calculateAtmosphericLoss(carrierFrequency, packet->getTag<TargetTag>()->getTarget());
+               EV << "SCPC SPECIFIC useDynamicWeather IS" << useDynamicWeather << " . A LOGICAL ERROR MAY HAVE OCCURED. TERMINATE SIMULATION. TERMINATE SIMULATION. TERMINATE SIMULATION. TERMINATE SIMULATION." << endl;
+//               DO NOTHING BECAUSE HANDLED BY MCC
 
-               int numMCCs = getSimulation()->getSystemModule()->par("numOfMCCs").intValue();
-               rng.seed(time(0));
-               // Randomly change weather after calculating atmospheric loss
-               std::uniform_real_distribution<double> weatherChange(-1.0, 1.0);
-               if (weatherChange(rng) > 0.0) { // to be or not to be
-                   EV << endl << "WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!!"
-                           << endl << "Updating weather..." << endl;
-                   std::uniform_real_distribution<double> dist(-25.0, 25.0);
-                   for (int i = 0; i < numMCCs; ++i) {
-                       weatherModels[i] += dist(rng);
-                       if (weatherModels[i] < 0.0){
-                           weatherModels[i] = 0.0;
-                       }
-                       if (weatherModels[i] > 300.1){
-                           weatherModels[i] /= 3.0;
-                       }
-                       EV << "Weather model at: " << i << " = " << weatherModels[i] << endl;
-                   }
-                   EV << endl;
-               }
+//               atmosphericLoss_dB = calculateAtmosphericLoss(carrierFrequency, packet->getTag<TargetTag>()->getTarget());
+//
+//               int numMCCs = getSimulation()->getSystemModule()->par("numOfMCCs").intValue();
+//               rng.seed(time(0));
+//               // Randomly change weather after calculating atmospheric loss
+//               std::uniform_real_distribution<double> weatherChange(-1.0, 1.0);
+//               if (weatherChange(rng) > 0.0) { // to be or not to be
+//                   EV << endl << "WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!!"
+//                           << endl << "Updating weather..." << endl;
+//                   std::uniform_real_distribution<double> dist(-25.0, 25.0);
+//                   for (int i = 0; i < numMCCs; ++i) {
+//                       weatherModels[i] += dist(rng);
+//                       if (weatherModels[i] < 0.0){
+//                           weatherModels[i] = 0.0;
+//                       }
+//                       if (weatherModels[i] > 300.1){
+//                           weatherModels[i] /= 3.0;
+//                       }
+//                       EV << "Weather model at: " << i << " = " << weatherModels[i] << endl;
+//                   }
+//                   EV << endl;
+//               }
            } else {
-               atmosphericLoss_dB = calculateAtmosphericLoss(carrierFrequency, weatherModel);
+               // THIS IS (always) DONE INSTEAD
+               if (useSpecDynamicWeather) {
+                   EV << "Specific weather model from sender/receiver MCC " << specWeatherModelIdx << ": " << specWeatherModel << "mm of rain\n";
+                   atmosphericLoss_dB = calculateAtmosphericLoss(carrierFrequency, specWeatherModel);
+               } else {
+                   EV << "SCPC exclusive value for weather model is used: " << weatherModel << "mm of rain\n";
+                   atmosphericLoss_dB = calculateAtmosphericLoss(carrierFrequency, weatherModel);
+               }
            }
 
            powerTag->setFSPL_dB(fspl_dB + atmosphericLoss_dB); // Store FSPL in the tag
@@ -202,8 +226,8 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
                 std::lock_guard<std::mutex> lock(fileMutex);  // Acquire lock
 
                 if (outputFile.is_open()) {
-                    EV << "Mutex acquired and is writing to file... " << simTime() << "," << atmosphericLoss_dB << "," << fspl_dB << "," << power_dBm << endl;
-                    outputFile << simTime() << "," << atmosphericLoss_dB << "," << fspl_dB << "," << power_dBm << std::endl;
+                    EV << "Mutex acquired and is writing to file... " << simTime() << "," << specWeatherModelIdx << "," << atmosphericLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << endl;
+                    outputFile << simTime() << "," << specWeatherModelIdx << "," << atmosphericLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << std::endl;
                 } else {
                     EV_ERROR << "Output file is not open!" << std::endl;
                 }

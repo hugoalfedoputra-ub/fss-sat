@@ -19,6 +19,8 @@ protected:
     std::mt19937 rng;
     GEOSatelliteAntenna *antenna;
     double noiseFloor_dBm;
+    bool useSpecDynamicWeather;
+    double specWeatherModel;
     std::string configName;
     virtual void initialize(int) override;
     virtual int numInitStages() const override { return 2; }
@@ -26,6 +28,10 @@ protected:
     virtual void finish() override;
 public:
     MissionControlCenter() {}
+    virtual ~MissionControlCenter();
+    double getSpecWeatherModel() const { return specWeatherModel; }
+    void setSpecWeatherModel(double input) { specWeatherModel = input; }
+    bool getUseSpecDynamicWeather() const { return useSpecDynamicWeather; }
 };
 
 #endif

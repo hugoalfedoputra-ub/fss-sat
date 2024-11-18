@@ -2,6 +2,7 @@
 #include "MissionControlCenter.h"
 #include "Tags.h"
 #include <fstream>
+#include <mutex>
 
 using namespace inet;
 using namespace omnetpp;
@@ -9,6 +10,8 @@ using namespace omnetpp;
 namespace { // Anonymous namespace
     int packetsLost = 0;
     int packetsSent = 0;
+    std::ofstream packetLossOutputFile; // New output file stream
+    std::mutex packetLossFileMutex;     // Mutex for new file
 }
 
 Define_Module(GEOSatelliteCommunications);
@@ -29,8 +32,21 @@ void GEOSatelliteCommunications::initialize()
     packetsSent = 0;
 
     configName = par("configName").stdstringValue();
-    EV << "GEOSatelliteCommunications initialized with config: " << configName << endl;
 
+    // Open the packet loss output file ONLY ONCE and in initialize()
+    packetLossFileMutex.lock(); // Corrected: Lock before checking and opening
+    if (!packetLossOutputFile.is_open()) {  // Check if already open
+        std::string packetLossFilename = configName + "_sat_packet_loss_details.txt";
+        packetLossOutputFile.open(packetLossFilename.c_str());
+        if (packetLossOutputFile.is_open()) {
+            packetLossOutputFile << "simTime,MCC_idx,packet_is_loss" << std::endl;
+        } else {
+            throw cRuntimeError("Error opening packet loss output file: %s", packetLossFilename.c_str());
+        }
+    }
+    packetLossFileMutex.unlock(); // Unlock after opening
+
+    EV << "GEOSatelliteCommunications initialized with config: " << configName << endl;
     EV << "MissionControlCenter: noiseFloor_dBm = " << noiseFloor_dBm << endl;
     EV << "GEOSatelliteCommunications Initialized " << endl;
 }
@@ -50,6 +66,14 @@ void GEOSatelliteCommunications::handleMessage(cMessage *msg)
 
     if (msg->isPacket()) {
         Packet* packet = check_and_cast<Packet*>(msg);
+        int senderMCCIndex = -1; // Initialize
+
+        try {
+            senderMCCIndex = msg->getArrivalGate()->getIndex();
+        } catch (cException& e) {
+           EV_ERROR << "Exception: Cannot get index of sender" << endl;
+           // Or handle it in other ways
+        }
 
         EV << "Total Latency: " << packet->getTag<LatencyTag>()->getLatency() << " s\n";
 
@@ -57,14 +81,32 @@ void GEOSatelliteCommunications::handleMessage(cMessage *msg)
 
         // Step 4: Satellite Reception and Received Power Calculation
         double old_power_dBm = powerTag->getReceivedPower_dBm();
+        bool packetLostHere = false; // Flag to indicate if the packet was lost at this point
 
         if (old_power_dBm < noiseFloor_dBm) {
             EV << "Uplink signal below noise floor (" << noiseFloor_dBm << " dBm), PACKET IS LOST AT SAT.\n";
             packetsLost++;
+            packetLostHere = true; // Set the flag
+            // Write packet loss details *AFTER* checking for loss
+            packetLossFileMutex.lock();
+            if (packetLossOutputFile.is_open()) {
+                packetLossOutputFile << simTime() << "," << senderMCCIndex << "," << (packetLostHere ? 1 : 0)  << std::endl;
+            } else {
+                EV_ERROR << "Packet loss details file not open!" << std::endl;
+            }
+            packetLossFileMutex.unlock();
             delete msg;
             return;
         }
         packetsSent++;
+        // Write packet loss details *AFTER* checking for loss
+        packetLossFileMutex.lock();
+        if (packetLossOutputFile.is_open()) {
+            packetLossOutputFile << simTime() << "," << senderMCCIndex << "," << (packetLostHere ? 1 : 0)  << std::endl;
+        } else {
+            EV_ERROR << "Packet loss details file not open!" << std::endl;
+        }
+        packetLossFileMutex.unlock();
 
         double eirp_dBm = powerTag->getEIRP_dBm();
         double fspl_dB = powerTag->getFSPL_dB(); // Get FSPL from the tag
@@ -163,4 +205,13 @@ void GEOSatelliteCommunications::finish()
     } else {
         EV_ERROR << "Could not open file for writing: " << filename << std::endl;
     }
+}
+
+// Destructor to close the file (recommended)
+GEOSatelliteCommunications::~GEOSatelliteCommunications() {
+    packetLossFileMutex.lock();
+    if (packetLossOutputFile.is_open()) {
+        packetLossOutputFile.close();
+    }
+    packetLossFileMutex.unlock();
 }
