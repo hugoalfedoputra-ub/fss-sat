@@ -159,10 +159,10 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
                // THIS IS (always) DONE INSTEAD
                if (useSpecDynamicWeather) {
                    EV << "Specific weather model from sender/receiver MCC " << specWeatherModelIdx << ": " << specWeatherModel << "mm of rain\n";
-                   atmosphericLoss_dB = calculateRainLoss(carrierFrequency, specWeatherModel);
+                   atmosphericLoss_dB = calculateRainLoss(carrierFrequency, specWeatherModel, txPosition, rxPosition);
                } else {
                    EV << "SCPC exclusive value for weather model is used: " << weatherModel << "mm of rain\n";
-                   atmosphericLoss_dB = calculateRainLoss(carrierFrequency, weatherModel);
+                   atmosphericLoss_dB = calculateRainLoss(carrierFrequency, weatherModel, txPosition, rxPosition);
                }
            }
 
