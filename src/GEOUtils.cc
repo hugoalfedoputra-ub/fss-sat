@@ -49,6 +49,11 @@ double calculateFreeSpacePathLoss(const Coord& transmitterPosition, const Coord&
     }
 }
 
+double calculateAtmosphericLoss(double frequencyGHz, double weatherModel) {
+    // Simplified ITU-R P.676 model
+    return 0.002 * pow(weatherModel, 0.85) * pow((frequencyGHz / 1000000000.0), 2.3);
+}
+
 Coord toECEF(double latitude, double longitude, double altitude) {
     double a = 6378137.0; // WGS84 semi-major axis
     double f = 1.0 / 298.257223563; // WGS84 flattening

@@ -1,5 +1,0 @@
-MCC 0: Packets Lost = 0
-MCC 1: Packets Lost = 0
-MCC 2: Packets Lost = 0
-MCC 3: Packets Lost = 0
-MCC 4: Packets Lost = 0

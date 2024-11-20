@@ -36,7 +36,9 @@ void GEOSatelliteCommunications::initialize()
     // Open the packet loss output file ONLY ONCE and in initialize()
     packetLossFileMutex.lock(); // Corrected: Lock before checking and opening
     if (!packetLossOutputFile.is_open()) {  // Check if already open
-        std::string packetLossFilename = configName + "_sat_packet_loss_details.txt";
+        std::string subfolder = "data"; // Name of the subfolder
+
+        std::string packetLossFilename = subfolder + "/" + configName + "_sat_packet_loss_details.txt";
         packetLossOutputFile.open(packetLossFilename.c_str());
         if (packetLossOutputFile.is_open()) {
             packetLossOutputFile << "simTime,MCC_idx,packet_is_loss" << std::endl;
@@ -195,7 +197,8 @@ void GEOSatelliteCommunications::processQueue()
 void GEOSatelliteCommunications::finish()
 {
     // Write packet loss data to a file
-    std::string filename = configName + "_sat_packet_lost.txt";
+    std::string subfolder = "data";
+    std::string filename = subfolder + "/" + configName + "_sat_packet_lost.txt";
     std::ofstream outputFile(filename.c_str());
 
     if (outputFile.is_open()) {

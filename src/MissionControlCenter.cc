@@ -7,6 +7,7 @@
 #include <random>
 #include <fstream>
 #include <mutex>
+#include <filesystem>
 
 using namespace inet;
 using namespace inet::math;
@@ -61,11 +62,14 @@ void MissionControlCenter::initialize(int stage)
         }
 
         configName = par("configName").stdstringValue();
+        std::string subfolder = "data";
 
         // Open the packet loss output file for writing ONLY ONCE and in initialize()
         if (getIndex() == 0) { // Only MCC 0 opens/creates the file
             fileMutex.lock(); // Acquire the lock
-            std::string filename = configName + "_mcc_packet_lost.txt";
+
+            std::string filename = subfolder + "/" + configName + "_mcc_packet_lost.txt";
+
             outputFile.open(filename.c_str());
             if (!outputFile.is_open()) {
                 throw cRuntimeError("Error opening output file: %s", filename.c_str());
@@ -76,7 +80,7 @@ void MissionControlCenter::initialize(int stage)
         // Open the weather output file ONLY ONCE and in initialize()
         if (getIndex() == 0) { // Only MCC 0 opens/creates the file
             weatherFileMutex.lock();
-            std::string weatherFilename = configName + "_mcc_weather_data.txt";
+            std::string weatherFilename = subfolder + "/" + configName + "_mcc_weather_data.txt";
             weatherOutputFile.open(weatherFilename.c_str());
             if (!weatherOutputFile.is_open()) {
                 throw cRuntimeError("Error opening weather output file: %s", weatherFilename.c_str());
@@ -89,7 +93,7 @@ void MissionControlCenter::initialize(int stage)
         // Open the packet loss output file ONLY ONCE and in initialize()
         packetLossFileMutex.lock(); // Corrected: Lock before checking and opening
         if (!packetLossOutputFile.is_open()) {  // Check if already open
-            std::string packetLossFilename = configName + "_mcc_packet_loss_details.txt";
+            std::string packetLossFilename = subfolder + "/" + configName + "_mcc_packet_loss_details.txt";
             packetLossOutputFile.open(packetLossFilename.c_str());
             if (packetLossOutputFile.is_open()) {
                 packetLossOutputFile << "simTime,MCC_idx,packet_is_loss" << std::endl;
