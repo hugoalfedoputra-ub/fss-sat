@@ -22,13 +22,13 @@ double calculateFreeSpacePathLoss(const Coord& transmitterPosition, const Coord&
         double freq = frequency;
 
         // Speed of light in m/s
-        const double c = 3e8;
+        const double c = 299792458.0;
 
         // Calculate wavelength
         double wavelength = c / freq;
 
-        // Free Space Path Loss formula: FSPL = (4PId/λ)²
-        double fspl = pow((4 * M_PI * distance) / wavelength, 2);
+        // Free Space Path Loss formula: FSPL = 20 * log_10 ( (4*pi*d) / wavelen )
+        double fspl = (4 * M_PI * distance) / wavelength;
 
          // Check for potential numerical overflow
         if (isinf(fspl) || std::isnan(fspl)) {
@@ -36,7 +36,7 @@ double calculateFreeSpacePathLoss(const Coord& transmitterPosition, const Coord&
         }
 
         // Convert to dB
-        double fsplDB = 10 * log10(fspl);
+        double fsplDB = 20 * log10(fspl);
         if (isinf(fsplDB) || std::isnan(fsplDB)) {
             throw overflow_error("Numerical overflow in dB conversion");
         }
