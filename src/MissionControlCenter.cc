@@ -189,7 +189,7 @@ void MissionControlCenter::handleMessage(cMessage *msg)
         if (weatherChange(rng) > 0.33) { // to be or not to be
             EV << endl << "WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!!"
                     << endl << "Updating weather..." << endl;
-            std::uniform_real_distribution<double> dist(-25.0, 5.0);
+            std::uniform_real_distribution<double> dist(-20.0, 15.0);
             specWeatherModel += dist(rng);
             if (specWeatherModel < 0.0){
                 specWeatherModel = 0.0;
