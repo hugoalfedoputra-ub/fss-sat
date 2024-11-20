@@ -152,23 +152,23 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
            double fspl_dB = calculateFreeSpacePathLoss(txPosition, rxPosition, carrierFrequency);
 
            // Weather model usage:
-           double atmosphericLoss_dB = 0.0;
+           double totalEnvironmentLoss_dB = 0.0;
            if (useDynamicWeather) {
                EV << "SCPC SPECIFIC useDynamicWeather IS" << useDynamicWeather << " . A LOGICAL ERROR MAY HAVE OCCURED. TERMINATE SIMULATION. TERMINATE SIMULATION. TERMINATE SIMULATION. TERMINATE SIMULATION." << endl;
            } else {
                // THIS IS (always) DONE INSTEAD
                if (useSpecDynamicWeather) {
                    EV << "Specific weather model from sender/receiver MCC " << specWeatherModelIdx << ": " << specWeatherModel << "mm of rain\n";
-                   atmosphericLoss_dB = calculateRainLoss(carrierFrequency, specWeatherModel, txPosition, rxPosition);
+                   totalEnvironmentLoss_dB = calculateRainLoss(carrierFrequency, specWeatherModel, txPosition, rxPosition);
                } else {
                    EV << "SCPC exclusive value for weather model is used: " << weatherModel << "mm of rain\n";
-                   atmosphericLoss_dB = calculateRainLoss(carrierFrequency, weatherModel, txPosition, rxPosition);
+                   totalEnvironmentLoss_dB = calculateRainLoss(carrierFrequency, weatherModel, txPosition, rxPosition);
                }
            }
 
-           powerTag->setFSPL_dB(fspl_dB + atmosphericLoss_dB); // Store FSPL in the tag
+           powerTag->setPL_dB(fspl_dB + totalEnvironmentLoss_dB); // Store FSPL in the tag
 
-           EV << "Atmospheric Loss: " << atmosphericLoss_dB << " dB\n";
+           EV << "Atmospheric Loss: " << totalEnvironmentLoss_dB << " dB\n";
 
             double power_dBm;
             if (dynamic_cast<MissionControlCenter*>(txModule)) {
@@ -178,15 +178,15 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
             }
 
             power_dBm -= fspl_dB;
-            power_dBm -= atmosphericLoss_dB;
+            power_dBm -= totalEnvironmentLoss_dB;
             powerTag->setReceivedPower_dBm(power_dBm);
 
             { // Scope for the lock
                 std::lock_guard<std::mutex> lock(fileMutex);  // Acquire lock
 
                 if (outputFile.is_open()) {
-                    EV << "Mutex acquired and is writing to file... " << simTime() << "," << specWeatherModelIdx << "," << atmosphericLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << endl;
-                    outputFile << simTime() << "," << specWeatherModelIdx << "," << atmosphericLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << std::endl;
+                    EV << "Mutex acquired and is writing to file... " << simTime() << "," << specWeatherModelIdx << "," << totalEnvironmentLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << endl;
+                    outputFile << simTime() << "," << specWeatherModelIdx << "," << totalEnvironmentLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << std::endl;
                 } else {
                     EV_ERROR << "Output file is not open!" << std::endl;
                 }

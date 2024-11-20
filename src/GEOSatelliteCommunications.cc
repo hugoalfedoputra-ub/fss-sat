@@ -111,7 +111,7 @@ void GEOSatelliteCommunications::handleMessage(cMessage *msg)
         packetLossFileMutex.unlock();
 
         double eirp_dBm = powerTag->getEIRP_dBm();
-        double fspl_dB = powerTag->getFSPL_dB(); // Get FSPL from the tag
+        double fspl_dB = powerTag->getPL_dB(); // Get FSPL from the tag
         double receiveGain_dBi = getParentModule()->getSubmodule("antenna")->par("gain").doubleValue();  // Satellite receive gain
         double receivedPower_dBm = eirp_dBm - fspl_dB + receiveGain_dBi;
 

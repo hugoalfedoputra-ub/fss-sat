@@ -235,7 +235,7 @@ void MissionControlCenter::handleMessage(cMessage *msg)
             }
             packetLossFileMutex.unlock();
 
-            double fspl_atmosphere_db = powerTag->getFSPL_dB();
+            double fspl_atmosphere_db = powerTag->getPL_dB();
             double receiveGain_dBi = antenna->getGain(); // Earth Station gain
             double eirp_sat = powerTag->getEIRP_dBm(); // Assuming the satellite transmits with its own EIRP, you might need to fetch this from the packet.
 

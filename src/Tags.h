@@ -8,16 +8,16 @@
 class PowerTag : public inet::TagBase
 {
 protected:
-    double transmitPower_dBm;  // Transmit Power (Pt) in dBm
-    double transmitGain_dBi;   // Transmit Antenna Gain (Gt) in dBi
-    double eirp_dBm;          // Effective Isotropic Radiated Power (EIRP) in dBm
-    double receiveGain_dBi;   // Receive Antenna Gain (Gr) in dBi
-    double receivedPower_dBm; // Received Power (Pr) in dBm
-    double fspl_dB;           // Free Space Path Loss (FSPL) in dB
+    double transmitPower_dBm;   // Transmit Power (Pt) in dBm
+    double transmitGain_dBi;    // Transmit Antenna Gain (Gt) in dBi
+    double eirp_dBm;            // Effective Isotropic Radiated Power (EIRP) in dBm
+    double receiveGain_dBi;     // Receive Antenna Gain (Gr) in dBi
+    double receivedPower_dBm;   // Received Power (Pr) in dBm
+    double pl_dB;               // Path Loss in dB caused by atmosphere, rain, cloud, and FSPL
 
 public:
     PowerTag() : transmitPower_dBm(0.0), transmitGain_dBi(0.0), eirp_dBm(0.0),
-                     receiveGain_dBi(0.0), receivedPower_dBm(0.0), fspl_dB(0.0) {}
+                     receiveGain_dBi(0.0), receivedPower_dBm(0.0), pl_dB(0.0) {}
 
     virtual const char* getName() const override { return "PowerTag"; }
 
@@ -25,7 +25,7 @@ public:
         std::stringstream ss;
         ss << "Pt: " << transmitPower_dBm << " dBm, Gt: " << transmitGain_dBi << " dBi, "
            << "EIRP: " << eirp_dBm << " dBm, Gr: " << receiveGain_dBi << " dBi, "
-           << "Pr: " << receivedPower_dBm << " dBm, FSPL: " << fspl_dB << " dB";
+           << "Pr: " << receivedPower_dBm << " dBm, PL: " << pl_dB << " dB";
         return ss.str();
     }
 
@@ -47,8 +47,8 @@ public:
     double getReceivedPower_dBm() const { return receivedPower_dBm; }
     void setReceivedPower_dBm(double p) { receivedPower_dBm = p; }
 
-    double getFSPL_dB() const { return fspl_dB; }
-    void setFSPL_dB(double f) { fspl_dB = f; }
+    double getPL_dB() const { return pl_dB; }
+    void setPL_dB(double f) { pl_dB = f; }
 
     // Helper function to calculate EIRP (if not set directly)
     void calculateEIRP() { eirp_dBm = transmitPower_dBm + transmitGain_dBi; }
