@@ -20,6 +20,8 @@ protected:
     GEOSatelliteAntenna *antenna;
     double noiseFloor_dBm;
     bool useSpecDynamicWeather;
+    bool useDynamicCloudCover;
+    int cloudCover;
     double specWeatherModel;
     std::string configName;
     virtual void initialize(int) override;
@@ -32,6 +34,9 @@ public:
     double getSpecWeatherModel() const { return specWeatherModel; }
     void setSpecWeatherModel(double input) { specWeatherModel = input; }
     bool getUseSpecDynamicWeather() const { return useSpecDynamicWeather; }
+    bool getUseDynamicCloudCover() const { return useDynamicCloudCover; }
+    void setCloudCover(int input) { cloudCover = input; }
+    int getCloudCover() const { return cloudCover; }
 };
 
 #endif

@@ -45,11 +45,12 @@ void MissionControlCenter::initialize(int stage)
 
         useSpecDynamicWeather = par("useSpecDynamicWeather").boolValue();
         specWeatherModel = par("specWeatherModel").doubleValue();
+        useDynamicCloudCover = par("useDynamicCloudCover").boolValue();
 
         if (useSpecDynamicWeather) {
             EV << "Using dynamic weather... " << endl;
             // Initialize weather models for each MCC
-            std::uniform_real_distribution<double> dist(-2.5, 5.0);
+            std::uniform_real_distribution<double> dist(-5.0, 5.0);
             specWeatherModel = 0.0; // Resetting it just in case
             specWeatherModel += dist(rng);
             if (specWeatherModel < 0.0){
@@ -60,6 +61,19 @@ void MissionControlCenter::initialize(int stage)
 //            specWeatherModel = 0.0;
             // Do nothing and let SCPC handle it
         }
+
+        if (useDynamicCloudCover) {
+            if (specWeatherModel < 3.0) {
+                cloudCover = 0;
+            } else if (3.0 <= specWeatherModel && specWeatherModel < 25.0) {
+                cloudCover = 1;
+            } else {
+                cloudCover = 2;
+            }
+        } else {
+            cloudCover = 0;
+        }
+        EV << "Cloud cover at MCC " << getIndex() << " = " << cloudCover << endl;
 
         configName = par("configName").stdstringValue();
         std::string subfolder = "data";
@@ -86,7 +100,7 @@ void MissionControlCenter::initialize(int stage)
                 throw cRuntimeError("Error opening weather output file: %s", weatherFilename.c_str());
             }
             // Write header to the weather file
-            weatherOutputFile << "simTime,MCCIndex,specWeatherModel" << std::endl;
+            weatherOutputFile << "simTime,MCCIndex,specWeatherModel,cloudCover" << std::endl;
             weatherFileMutex.unlock();
         }
 
@@ -164,7 +178,7 @@ void MissionControlCenter::handleMessage(cMessage *msg)
         // Write weather data to file BEFORE weather might have changed (this is uplink)
         weatherFileMutex.lock();
         if (weatherOutputFile.is_open()) {
-            weatherOutputFile << simTime() << "," << getIndex() << "," << specWeatherModel << std::endl;
+            weatherOutputFile << simTime() << "," << getIndex() << "," << specWeatherModel << "," << cloudCover << std::endl;
         } else {
             EV_ERROR << "Weather output file is not open!" << std::endl;
         }
@@ -175,7 +189,7 @@ void MissionControlCenter::handleMessage(cMessage *msg)
         if (weatherChange(rng) > 0.33) { // to be or not to be
             EV << endl << "WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!! WEATHER UPDATE !!!"
                     << endl << "Updating weather..." << endl;
-            std::uniform_real_distribution<double> dist(-25.0, 25.0);
+            std::uniform_real_distribution<double> dist(-25.0, 5.0);
             specWeatherModel += dist(rng);
             if (specWeatherModel < 0.0){
                 specWeatherModel = 0.0;
@@ -183,13 +197,25 @@ void MissionControlCenter::handleMessage(cMessage *msg)
             if (specWeatherModel > 250.1){
                 specWeatherModel /= 3.0;
             }
+
+            if (useDynamicCloudCover) {
+                if (specWeatherModel < 3.0) {
+                    cloudCover = 0;
+                } else if (3.0 <= specWeatherModel && specWeatherModel < 25.0) {
+                    cloudCover = 1;
+                } else {
+                    cloudCover = 2;
+                }
+            }
+
             EV << "Weather model at MCC " << getIndex() << " = " << specWeatherModel << " (occurred after sending packet)" << endl;
+            EV << "Cloud cover at MCC " << getIndex() << " = " << cloudCover << " (occurred after sending packet)" << endl;
         }
 
         // Write weather data to file AFTER weather might have changed (this is downlink)
         weatherFileMutex.lock();
         if (weatherOutputFile.is_open()) {
-            weatherOutputFile << simTime() + 0.00001 << "," << getIndex() << "," << specWeatherModel << std::endl;
+            weatherOutputFile << simTime() + 0.00001 << "," << getIndex() << "," << specWeatherModel << "," << cloudCover << std::endl;
         } else {
             EV_ERROR << "Weather output file is not open!" << std::endl;
         }

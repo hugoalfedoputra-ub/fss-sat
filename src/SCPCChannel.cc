@@ -111,6 +111,7 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
     double specWeatherModel = 0.0;
     bool useSpecDynamicWeather = false;
     int specWeatherModelIdx = -1;
+    int cloudCover = -1;
 
     if (msg->isPacket()) {
         auto packet = check_and_cast<Packet*>(msg);
@@ -129,6 +130,7 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
             specWeatherModel = check_and_cast<MissionControlCenter*>(txModule)->getSpecWeatherModel();
             useSpecDynamicWeather = check_and_cast<MissionControlCenter*>(txModule)->getUseSpecDynamicWeather();
             specWeatherModelIdx = check_and_cast<MissionControlCenter*>(txModule)->getIndex();
+            cloudCover = check_and_cast<MissionControlCenter*>(txModule)->getCloudCover();
 
         } else if (dynamic_cast<GEOSatellite*>(txModule)) { // Downlink
             txPosition = check_and_cast<GEOSatelliteMobility*>(txModule->getSubmodule("mobility"))->getRealWorldPosition();
@@ -139,6 +141,7 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
                 specWeatherModel = check_and_cast<MissionControlCenter*>(rxModule)->getSpecWeatherModel();
                 useSpecDynamicWeather = check_and_cast<MissionControlCenter*>(rxModule)->getUseSpecDynamicWeather();
                 specWeatherModelIdx = check_and_cast<MissionControlCenter*>(rxModule)->getIndex();
+                cloudCover = check_and_cast<MissionControlCenter*>(rxModule)->getCloudCover();
             }
         } else {
             throw cRuntimeError("Unsupported module type for SCPCChannel");
@@ -169,8 +172,7 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
                }
            }
 
-           double surfaceHumidity = 20.0; // Example value - should determine this based on scenario
-           bool partialCloudCover = true; // Example value - should determine this based on scenario
+           double surfaceHumidity = 20.0; // Hardcoded
 
            Coord txGeo = ecefToGeodetic(txPosition);
            Coord rxGeo = ecefToGeodetic(rxPosition);
@@ -182,7 +184,7 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
 
            double elevationAngle = calculateElevationAngle(satLongitude, mccLongitude, mccLatitude);
 
-           cloudLoss_dB = calculateCloudLoss(carrierFrequency, surfaceHumidity, elevationAngle, partialCloudCover);
+           cloudLoss_dB = calculateCloudLoss(carrierFrequency, surfaceHumidity, elevationAngle, cloudCover);
 
            totalEnvironmentLoss_dB = rainLoss_dB + cloudLoss_dB;
 

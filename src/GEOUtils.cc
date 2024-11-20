@@ -160,7 +160,7 @@ double calculateRainLoss(double frequency, double weatherModel, const Coord& txP
 }
 
 // Altshuler and Marr Model
-double calculateCloudLoss(double frequency, double surfaceHumidity, double elevationAngleDeg, bool partialCloudCover) {
+double calculateCloudLoss(double frequency, double surfaceHumidity, double elevationAngleDeg, int cloudCover) {
     double wavelengthMm = (299792458.0 / frequency) / 1e-3; // Wavelength in millimeters
     double elevationAngleRad = deg2rad(elevationAngleDeg);
 
@@ -188,9 +188,12 @@ double calculateCloudLoss(double frequency, double surfaceHumidity, double eleva
                 (11.3 + surfaceHumidity) * DTheta;
 
     // Adjust for partial cloud cover if needed
-    if (partialCloudCover) {
+    if (cloudCover == 0){
+        Ac *= 0.01;
+    } else if (cloudCover == 1) {
         Ac *= 0.85;
     }
+    // else keep whatever Ac already is
 
     return Ac;
 }

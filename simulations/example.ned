@@ -89,6 +89,7 @@ module MissionControlCenter
         string mobilityType = default("GroundStationMobility");
         double iaTime @unit(s);
         bool useSpecDynamicWeather = default(false);
+		bool useDynamicCloudCover = default(true);
         double specWeatherModel = default(-100.0); // temp val so noticable in logs
         @class(MissionControlCenter);
         @display("t=$cityName");

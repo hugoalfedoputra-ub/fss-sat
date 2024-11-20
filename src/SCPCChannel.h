@@ -21,6 +21,7 @@ protected:
     double datarate;
     double weatherModel;
     bool useDynamicWeather;
+    int cloudCover = 0;
     std::string modulation;
     static std::set<double> activeCarriers;
     std::string configName;
