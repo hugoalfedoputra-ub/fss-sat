@@ -49,9 +49,30 @@ double calculateFreeSpacePathLoss(const Coord& transmitterPosition, const Coord&
     }
 }
 
-double calculateAtmosphericLoss(double frequencyGHz, double weatherModel) {
-    // Simplified ITU-R P.676 model
-    return 0.002 * pow(weatherModel, 0.85) * pow((frequencyGHz / 1000000000.0), 2.3);
+double calculateRainLoss(double frequencyGHz, double weatherModel) {
+    // ITU-R P.838-3 model
+    double k = 0.0;
+    double alpha = 0.0;
+
+    double freq = frequencyGHz / 1e9;
+
+    if (4.0 <= freq && freq < 4.5) {
+
+    } else if (6.0 <= freq && freq < 7.0) {
+
+    } else if (12.0 <= freq && freq < 13.0) {
+
+    } else if (14.0 <= freq && freq < 15.0) {
+
+    } else if (20.0 <= freq && freq < 21.0) {
+
+    } else if (30.0 <= freq && freq < 31.0) {
+
+    } else {
+        EV << "FREQUENCY IS OUT OF IMPLEMENTATION FOR THIS FUNCTION. SET 0.0 TO ALL" << endl;
+    }
+
+    return
 }
 
 Coord toECEF(double latitude, double longitude, double altitude) {

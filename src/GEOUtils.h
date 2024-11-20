@@ -5,6 +5,6 @@
 
 inet::Coord toECEF(double latitude, double longitude, double altitude);
 double calculateFreeSpacePathLoss(const inet::Coord& transmitterPosition, const inet::Coord& receiverPosition, double frequency);
-double calculateAtmosphericLoss(double frequencyGHz, double weatherModel);
+double calculateRainLoss(double frequencyGHz, double weatherModel);
 
 #endif /* GEOUTILS_H_ */
