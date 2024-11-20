@@ -85,7 +85,7 @@ void SCPCChannel::initialize(int stage)
                 std::string filename = subfolder + "/" + configName + "_scpc_channel_data.txt";
                 outputFile.open(filename.c_str());
                 if (outputFile.is_open()) {
-                    outputFile << "simTime,MCC_idx,rainLoss_dB,cloudLoss_dB,fspl_dB,power_dBm,weatherAtMCC" << std::endl;
+                    outputFile << "simTime,MCC_idx,rainLoss_dB,cloudLoss_dB,fspl_dB,power_dBm,rain_mm_AtMCC,cloudCoverAtMCC" << std::endl;
                 } else {
                     throw cRuntimeError("Error opening output file: %s", filename.c_str());
                 }
@@ -207,8 +207,8 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
                 std::lock_guard<std::mutex> lock(fileMutex);  // Acquire lock
 
                 if (outputFile.is_open()) {
-                    EV << "Mutex acquired and is writing to file... " << simTime() << "," << specWeatherModelIdx << "," << rainLoss_dB << "," << cloudLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << endl;
-                    outputFile << simTime() << "," << specWeatherModelIdx << "," << rainLoss_dB << "," << cloudLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << std::endl;
+                    EV << "Mutex acquired and is writing to file... " << simTime() << "," << specWeatherModelIdx << "," << rainLoss_dB << "," << cloudLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << "," << cloudCover << endl;
+                    outputFile << simTime() << "," << specWeatherModelIdx << "," << rainLoss_dB << "," << cloudLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << "," << cloudCover << std::endl;
                 } else {
                     EV_ERROR << "Output file is not open!" << std::endl;
                 }
