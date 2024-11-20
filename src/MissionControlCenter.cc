@@ -180,7 +180,7 @@ void MissionControlCenter::handleMessage(cMessage *msg)
             if (specWeatherModel < 0.0){
                 specWeatherModel = 0.0;
             }
-            if (specWeatherModel > 300.1){
+            if (specWeatherModel > 250.1){
                 specWeatherModel /= 3.0;
             }
             EV << "Weather model at MCC " << getIndex() << " = " << specWeatherModel << " (occurred after sending packet)" << endl;

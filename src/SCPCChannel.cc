@@ -85,7 +85,7 @@ void SCPCChannel::initialize(int stage)
                 std::string filename = subfolder + "/" + configName + "_scpc_channel_data.txt";
                 outputFile.open(filename.c_str());
                 if (outputFile.is_open()) {
-                    outputFile << "simTime,MCC_idx,atmosphericLoss_dB,fspl_dB,power_dBm,weatherAtMCC" << std::endl;
+                    outputFile << "simTime,MCC_idx,rainLoss_dB,cloudLoss_dB,fspl_dB,power_dBm,weatherAtMCC" << std::endl;
                 } else {
                     throw cRuntimeError("Error opening output file: %s", filename.c_str());
                 }
@@ -153,22 +153,42 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
 
            // Weather model usage:
            double totalEnvironmentLoss_dB = 0.0;
+           double rainLoss_dB = 0.0;
+           double cloudLoss_dB = 0.0;
+
            if (useDynamicWeather) {
                EV << "SCPC SPECIFIC useDynamicWeather IS" << useDynamicWeather << " . A LOGICAL ERROR MAY HAVE OCCURED. TERMINATE SIMULATION. TERMINATE SIMULATION. TERMINATE SIMULATION. TERMINATE SIMULATION." << endl;
            } else {
                // THIS IS (always) DONE INSTEAD
                if (useSpecDynamicWeather) {
                    EV << "Specific weather model from sender/receiver MCC " << specWeatherModelIdx << ": " << specWeatherModel << "mm of rain\n";
-                   totalEnvironmentLoss_dB = calculateRainLoss(carrierFrequency, specWeatherModel, txPosition, rxPosition);
+                   rainLoss_dB = calculateRainLoss(carrierFrequency, specWeatherModel, txPosition, rxPosition);
                } else {
                    EV << "SCPC exclusive value for weather model is used: " << weatherModel << "mm of rain\n";
-                   totalEnvironmentLoss_dB = calculateRainLoss(carrierFrequency, weatherModel, txPosition, rxPosition);
+                   rainLoss_dB = calculateRainLoss(carrierFrequency, weatherModel, txPosition, rxPosition);
                }
            }
 
+           double surfaceHumidity = 20.0; // Example value - should determine this based on scenario
+           bool partialCloudCover = true; // Example value - should determine this based on scenario
+
+           Coord txGeo = ecefToGeodetic(txPosition);
+           Coord rxGeo = ecefToGeodetic(rxPosition);
+
+           double mccLatitude = txGeo.x;
+           double mccLongitude = txGeo.y;
+           double satLatitude = rxGeo.x;
+           double satLongitude = rxGeo.y;
+
+           double elevationAngle = calculateElevationAngle(satLongitude, mccLongitude, mccLatitude);
+
+           cloudLoss_dB = calculateCloudLoss(carrierFrequency, surfaceHumidity, elevationAngle, partialCloudCover);
+
+           totalEnvironmentLoss_dB = rainLoss_dB + cloudLoss_dB;
+
            powerTag->setPL_dB(fspl_dB + totalEnvironmentLoss_dB); // Store FSPL in the tag
 
-           EV << "Atmospheric Loss: " << totalEnvironmentLoss_dB << " dB\n";
+           EV << "Total Environtment Loss: " << totalEnvironmentLoss_dB << " dB\n";
 
             double power_dBm;
             if (dynamic_cast<MissionControlCenter*>(txModule)) {
@@ -185,8 +205,8 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
                 std::lock_guard<std::mutex> lock(fileMutex);  // Acquire lock
 
                 if (outputFile.is_open()) {
-                    EV << "Mutex acquired and is writing to file... " << simTime() << "," << specWeatherModelIdx << "," << totalEnvironmentLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << endl;
-                    outputFile << simTime() << "," << specWeatherModelIdx << "," << totalEnvironmentLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << std::endl;
+                    EV << "Mutex acquired and is writing to file... " << simTime() << "," << specWeatherModelIdx << "," << rainLoss_dB << "," << cloudLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << endl;
+                    outputFile << simTime() << "," << specWeatherModelIdx << "," << rainLoss_dB << "," << cloudLoss_dB << "," << fspl_dB << "," << power_dBm << "," << specWeatherModel << std::endl;
                 } else {
                     EV_ERROR << "Output file is not open!" << std::endl;
                 }
@@ -194,7 +214,9 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
             } // Release lock
 
             EV << "Step 3 (UPLINK) / 7 (DOWNLINK): FSPL: " << fspl_dB << " dB\n";
-            EV << "Step 3 (UPLINK) / 7 (DOWNLINK): Received Power (after FSPL and Atmospheric Loss): " << power_dBm << " dBm\n";
+            EV << "Step 3 (UPLINK) / 7 (DOWNLINK): Rain Loss: " << rainLoss_dB << " dB\n";
+            EV << "Step 3 (UPLINK) / 7 (DOWNLINK): Cloud Loss: " << cloudLoss_dB << " dB\n";
+            EV << "Step 3 (UPLINK) / 7 (DOWNLINK): Received Power (after FSPL and Total Environtment Loss): " << power_dBm << " dBm\n";
 
         } catch (const std::exception& e) {
             EV_ERROR << "Error calculating path loss: " << e.what() << endl;
