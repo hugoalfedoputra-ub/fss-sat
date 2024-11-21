@@ -112,6 +112,7 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
     bool useSpecDynamicWeather = false;
     int specWeatherModelIdx = -1;
     int cloudCover = -1;
+    double cloudHeight = 1.0;
 
     if (msg->isPacket()) {
         auto packet = check_and_cast<Packet*>(msg);
@@ -131,6 +132,7 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
             useSpecDynamicWeather = check_and_cast<MissionControlCenter*>(txModule)->getUseSpecDynamicWeather();
             specWeatherModelIdx = check_and_cast<MissionControlCenter*>(txModule)->getIndex();
             cloudCover = check_and_cast<MissionControlCenter*>(txModule)->getCloudCover();
+            cloudHeight = check_and_cast<MissionControlCenter*>(txModule)->getCloudHeight();
 
         } else if (dynamic_cast<GEOSatellite*>(txModule)) { // Downlink
             txPosition = check_and_cast<GEOSatelliteMobility*>(txModule->getSubmodule("mobility"))->getRealWorldPosition();
@@ -142,6 +144,7 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
                 useSpecDynamicWeather = check_and_cast<MissionControlCenter*>(rxModule)->getUseSpecDynamicWeather();
                 specWeatherModelIdx = check_and_cast<MissionControlCenter*>(rxModule)->getIndex();
                 cloudCover = check_and_cast<MissionControlCenter*>(rxModule)->getCloudCover();
+                cloudHeight = check_and_cast<MissionControlCenter*>(rxModule)->getCloudHeight();
             }
         } else {
             throw cRuntimeError("Unsupported module type for SCPCChannel");
@@ -165,10 +168,10 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
                // THIS IS (always) DONE INSTEAD
                if (useSpecDynamicWeather) {
                    EV << "Specific weather model from sender/receiver MCC " << specWeatherModelIdx << ": " << specWeatherModel << "mm of rain\n";
-                   rainLoss_dB = calculateRainLoss(carrierFrequency, specWeatherModel, txPosition, rxPosition);
+                   rainLoss_dB = calculateRainLoss(carrierFrequency, specWeatherModel, txPosition, rxPosition) * cloudHeight;
                } else {
                    EV << "SCPC exclusive value for weather model is used: " << weatherModel << "mm of rain\n";
-                   rainLoss_dB = calculateRainLoss(carrierFrequency, weatherModel, txPosition, rxPosition);
+                   rainLoss_dB = calculateRainLoss(carrierFrequency, weatherModel, txPosition, rxPosition) * cloudHeight;
                }
            }
 
@@ -184,7 +187,7 @@ cChannel::Result SCPCChannel::processMessage(cMessage *msg, const SendOptions& o
 
            double elevationAngle = calculateElevationAngle(satLongitude, mccLongitude, mccLatitude);
 
-           cloudLoss_dB = calculateCloudLoss(carrierFrequency, surfaceHumidity, elevationAngle, cloudCover);
+           cloudLoss_dB = calculateCloudLoss(carrierFrequency, surfaceHumidity, elevationAngle, cloudCover) * cloudHeight;
 
            totalEnvironmentLoss_dB = rainLoss_dB + cloudLoss_dB;
 
