@@ -1,1 +1,2 @@
+Satellite: Packets Sent = 5160
 Satellite: Packets Lost = 0

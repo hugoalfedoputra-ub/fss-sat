@@ -142,6 +142,11 @@ double calculateRainLoss(double frequency, double weatherModel, const Coord& txP
         kv = 0.09611;
         alphah = 1.0568;
         alphav = 0.9847;
+    } else if (27.0 <= freq && freq < 28.0) {
+        kh = 0.1884;
+        kv = 0.1813;
+        alphah = 0.9780;
+        alphav = 0.9349;
     } else if (30.0 <= freq && freq < 31.0) {
         kh = 0.2403;
         kv = 0.9485;

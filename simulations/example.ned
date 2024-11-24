@@ -91,7 +91,7 @@ module MissionControlCenter
         bool useSpecDynamicWeather = default(true);
 		bool useDynamicCloudCover = default(true);
 		bool useDynamicCloudHeight = default(true);
-        double specWeatherModel = default(-100.0); // temp val so noticable in logs
+        double specWeatherModel = default(0.0);
         @class(MissionControlCenter);
         @display("t=$cityName");
         double noiseFloor @unit(dBm); 

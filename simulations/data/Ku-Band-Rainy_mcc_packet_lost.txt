@@ -1,5 +1,10 @@
-MCC 0: Packets Lost = 892
-MCC 1: Packets Lost = 948
-MCC 2: Packets Lost = 985
-MCC 3: Packets Lost = 937
-MCC 4: Packets Lost = 838
+MCC 0: Packets Sent = 1083
+MCC 0: Packets Lost = 893
+MCC 1: Packets Sent = 1083
+MCC 1: Packets Lost = 963
+MCC 2: Packets Sent = 1083
+MCC 2: Packets Lost = 945
+MCC 3: Packets Sent = 1083
+MCC 3: Packets Lost = 966
+MCC 4: Packets Sent = 1083
+MCC 4: Packets Lost = 936

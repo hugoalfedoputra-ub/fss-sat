@@ -1,5 +1,10 @@
+MCC 0: Packets Sent = 1077
 MCC 0: Packets Lost = 0
+MCC 1: Packets Sent = 1077
 MCC 1: Packets Lost = 0
+MCC 2: Packets Sent = 1077
 MCC 2: Packets Lost = 0
+MCC 3: Packets Sent = 1077
 MCC 3: Packets Lost = 0
+MCC 4: Packets Sent = 1077
 MCC 4: Packets Lost = 0
