@@ -21,7 +21,9 @@ protected:
     double noiseFloor_dBm;
     bool useSpecDynamicWeather;
     bool useDynamicCloudCover;
+    bool useDynamicCloudHeight;
     int cloudCover;
+    double cloudHeight;
     double specWeatherModel;
     std::string configName;
     virtual void initialize(int) override;
@@ -37,6 +39,8 @@ public:
     bool getUseDynamicCloudCover() const { return useDynamicCloudCover; }
     void setCloudCover(int input) { cloudCover = input; }
     int getCloudCover() const { return cloudCover; }
+    void setCloudHeight(double input) { cloudHeight = input; }
+    double getCloudHeight() const { return cloudHeight; }
 };
 
 #endif
